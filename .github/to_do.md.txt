@@ -1,0 +1,81 @@
+ GLOBAL WIDGETS (Shared Across Screens)
+Widget	Purpose
+Scaffold	Main layout structure
+BottomNavigationBar	Navigation between main screens
+AppBar / CustomAppBar	Top bar with title, actions
+Drawer (optional)	Side menu for settings/help
+FutureBuilder / StreamBuilder	Load data from APIs or Firebase
+SnackBar / AlertDialog	Notifications or alerts
+FloatingActionButton	Add or create actions (e.g., new post)
+CircularProgressIndicator	Loading spinner
+Image / Image.network	Show local or remote images
+Provider / Riverpod	State management
+ListView.builder	Display lists of content (used everywhere)
+
+📰 News & Events Feed
+Widget	Purpose
+ListView	News & alerts list
+Card	News item/event preview
+table_calendar (plugin)	Show event calendar
+Text / RichText	Display event descriptions
+firebase_messaging (plugin)	Push notification integration
+GestureDetector / InkWell	Tappable event items
+IconButton	Alerts, refresh, filters
+
+🏪 Business Directory & Marketplace
+Widget	Purpose
+TextField	Search input
+DropdownButton / PopupMenuButton	Filters by category/type
+GridView / ListView	Business cards list
+Card / Container	Display each business info
+CachedNetworkImage (plugin)	Business logo/photos
+ElevatedButton	Book / contact buttons
+url_launcher (plugin)	Open phone/email links
+Badge (optional)	Show “New”/“Deal” status
+
+📌 Community Bulletin Board
+Widget	Purpose
+Form + TextFormField	Create/edit post form
+SegmentedControl or Chips	Category selection (Jobs, Sell, etc.)
+Card / ListTile	Display posts
+PopupMenuButton	Post actions (edit, report)
+image_picker (plugin)	Add image to post
+firebase_storage (plugin)	Upload image
+AlertDialog	Confirm delete/report
+Icon	Flag/report icons
+
+🏛️ Public Services Hub
+Widget	Purpose
+Card or ExpansionTile	Department/contact list
+ListTile	Quick contact access
+FormBuilder (plugin)	Submit service request form
+DatePicker / TimePicker	Request scheduling
+IconButton	Call/email shortcuts
+Divider	Organize sections
+
+🗺️ Interactive Map Screen
+Widget	Purpose
+google_maps_flutter (plugin)	Display map
+Marker (Google Maps object)	Add pins for events/businesses
+Custom InfoWindow	Show detail on tap
+FloatingActionButton	Recenter map or toggle layers
+SearchBar (custom or TextField)	Search map locations
+Positioned	Overlay UI on top of map
+Icons	Custom map icons (events, services)
+
+✅ ADMIN/MODERATION WIDGETS (Optional)
+Widget	Purpose
+SwitchListTile	Toggle post visibility
+DataTable	(For Admin Panel, web only)
+ModalBottomSheet	Quick moderation actions
+
+🛠️ PLUGINS SUMMARY
+Plugin	Usage
+google_maps_flutter	Interactive map
+table_calendar	Calendar view for events
+firebase_messaging	Push notifications
+flutter_form_builder	Complex forms
+image_picker, firebase_storage	Uploading images
+cached_network_image	Efficient image loading
+provider / riverpod	State management
+url_launcher	External links (calls, emails)

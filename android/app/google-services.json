@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "614152838105",
+    "project_id": "community-beat-4b79a",
+    "storage_bucket": "community-beat-4b79a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:614152838105:android:dfa176bb775857d50e57c8",
+        "android_client_info": {
+          "package_name": "com.wordnerd.communitybeat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAN5SuYNkD3gK3tfHBRaAUSjfk2OWYuJ7E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
