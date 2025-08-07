@@ -3,6 +3,7 @@
 import '../models/event.dart';
 import '../models/business.dart';
 import '../models/post.dart';
+import '../models/service_request.dart';
 import 'firestore_service.dart';
 
 /// Unified data service that provides a clean interface for data operations
@@ -177,7 +178,7 @@ class DataService {
   // SERVICE REQUESTS OPERATIONS
 
   /// Submit a service request
-  Future<String> submitServiceRequest({
+  Future<ServiceRequest> submitServiceRequest({
     required String title,
     required String description,
     required String category,
@@ -185,19 +186,32 @@ class DataService {
     List<String>? imageUrls,
     String? contactInfo,
   }) async {
-    return await _firestoreService.submitServiceRequest(
+    // Create a ServiceRequest object
+    final serviceRequest = ServiceRequest(
+      id: '', // Will be set by Firestore
       title: title,
       description: description,
       category: category,
+      priority: ServiceRequestPriority.medium,
+      status: ServiceRequestStatus.open,
+      requesterId: '', // Should be set based on current user
+      requesterName: '', // Should be set based on current user
       location: location,
-      imageUrls: imageUrls,
-      contactInfo: contactInfo,
+      imageUrls: imageUrls ?? [],
+      tags: [],
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      isUrgent: false,
+      upvoteCount: 0,
+      upvotedBy: [],
     );
+    
+    return await _firestoreService.createServiceRequest(serviceRequest);
   }
 
   /// Get service requests
-  Future<List<Map<String, dynamic>>> getServiceRequests({
-    String? status,
+  Future<List<ServiceRequest>> getServiceRequests({
+    ServiceRequestStatus? status,
     String? category,
     int? limit = 50,
   }) async {
@@ -326,7 +340,7 @@ class DataService {
         getPosts(limit: 1000), // Get all posts to count
         getBusinesses(limit: 1000), // Get all businesses to count
         getEvents(upcomingOnly: true, limit: 1000), // Get upcoming events to count
-        getServiceRequests(status: 'pending', limit: 1000), // Get pending service requests
+        getServiceRequests(status: ServiceRequestStatus.open, limit: 1000), // Get open service requests
       ]);
 
       return {

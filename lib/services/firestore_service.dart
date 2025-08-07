@@ -329,71 +329,7 @@ class FirestoreService {
     }
   }
 
-  // SERVICE REQUESTS OPERATIONS
 
-  /// Submit a service request
-  Future<String> submitServiceRequest({
-    required String title,
-    required String description,
-    required String category,
-    String? location,
-    List<String>? imageUrls,
-    String? contactInfo,
-  }) async {
-    try {
-      final data = {
-        'title': title,
-        'description': description,
-        'category': category,
-        'location': location,
-        'image_urls': imageUrls ?? [],
-        'contact_info': contactInfo,
-        'status': 'pending',
-        'created_at': DateTime.now().toIso8601String(),
-        'updated_at': DateTime.now().toIso8601String(),
-      };
-
-      final docRef = await _serviceRequestsCollection.add(data);
-      await docRef.update({'id': docRef.id});
-      
-      return docRef.id;
-    } catch (e) {
-      throw FirestoreException('Failed to submit service request: $e');
-    }
-  }
-
-  /// Get service requests
-  Future<List<Map<String, dynamic>>> getServiceRequests({
-    String? status,
-    String? category,
-    int? limit,
-  }) async {
-    try {
-      Query query = _serviceRequestsCollection;
-
-      if (status != null) {
-        query = query.where('status', isEqualTo: status);
-      }
-
-      if (category != null) {
-        query = query.where('category', isEqualTo: category);
-      }
-
-      query = query.orderBy('created_at', descending: true);
-
-      if (limit != null) {
-        query = query.limit(limit);
-      }
-
-      final querySnapshot = await query.get();
-      
-      return querySnapshot.docs
-          .map((doc) => doc.data() as Map<String, dynamic>)
-          .toList();
-    } catch (e) {
-      throw FirestoreException('Failed to get service requests: $e');
-    }
-  }
 
   // EMERGENCY ALERTS OPERATIONS
 
@@ -567,7 +503,16 @@ class FirestoreService {
   }
 }
 
-// Extension to add copyWith method to Business model if not present
+/// Custom exception for Firestore operations
+class FirestoreException implements Exception {
+  final String message;
+  FirestoreException(this.message);
+
+  @override
+  String toString() => 'FirestoreException: $message';
+}
+
+  // Extension to add copyWith method to Business model if not present
 extension BusinessCopyWith on Business {
   Business copyWith({
     String? id,
@@ -612,7 +557,9 @@ extension BusinessCopyWith on Business {
       deals: deals ?? this.deals,
     );
   }
+}
 
+extension FirestoreServiceExtensions on FirestoreService {
   // SERVICE REQUEST CRUD OPERATIONS
 
   /// Create a new service request
@@ -946,13 +893,4 @@ extension BusinessCopyWith on Business {
       return null;
     });
   }
-}
-
-/// Custom exception for Firestore operations
-class FirestoreException implements Exception {
-  final String message;
-  FirestoreException(this.message);
-
-  @override
-  String toString() => 'FirestoreException: $message';
 }

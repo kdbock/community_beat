@@ -160,10 +160,10 @@ class UserModel {
     
     if (difference.inDays > 365) {
       final years = (difference.inDays / 365).floor();
-      return 'Member for ${years} year${years == 1 ? '' : 's'}';
+      return 'Member for $years year${years == 1 ? '' : 's'}';
     } else if (difference.inDays > 30) {
       final months = (difference.inDays / 30).floor();
-      return 'Member for ${months} month${months == 1 ? '' : 's'}';
+      return 'Member for $months month${months == 1 ? '' : 's'}';
     } else if (difference.inDays > 0) {
       return 'Member for ${difference.inDays} day${difference.inDays == 1 ? '' : 's'}';
     } else {

@@ -66,18 +66,24 @@ class MapService {
         radiusKm: radiusKm,
       );
 
-      return businesses.where((business) => 
-        business.latitude != null && business.longitude != null
-      ).map((business) => Marker(
-        markerId: MarkerId('business_${business.id}'),
-        position: LatLng(business.latitude!, business.longitude!),
-        icon: await _getBusinessIcon(business.category),
-        infoWindow: InfoWindow(
-          title: business.name,
-          snippet: '${business.category} • ${business.rating.toStringAsFixed(1)} ⭐',
-          onTap: () => _onBusinessMarkerTapped(business),
-        ),
-      )).toSet();
+      Set<Marker> markers = {};
+      
+      for (final business in businesses) {
+        if (business.latitude != null && business.longitude != null) {
+          markers.add(Marker(
+            markerId: MarkerId('business_${business.id}'),
+            position: LatLng(business.latitude!, business.longitude!),
+            icon: await _getBusinessIcon(business.category),
+            infoWindow: InfoWindow(
+              title: business.name,
+              snippet: '${business.category} • ${business.rating.toStringAsFixed(1)} ⭐',
+              onTap: () => _onBusinessMarkerTapped(business),
+            ),
+          ));
+        }
+      }
+
+      return markers;
     } catch (e) {
       debugPrint('Error creating business markers: $e');
       return {};

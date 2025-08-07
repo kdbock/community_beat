@@ -237,13 +237,30 @@ class AuthService {
   }
 
   /// Check if email is available
+  /// Note: This is a simplified check. The definitive way to know if an email
+  /// is available is to attempt registration and handle the 'email-already-in-use' error.
   Future<bool> isEmailAvailable(String email) async {
     try {
-      final methods = await _auth.fetchSignInMethodsForEmail(email);
-      return methods.isEmpty;
+      // Since fetchSignInMethodsForEmail is deprecated, we'll use a simple validation
+      // and let the actual sign-up process handle the email-already-in-use error
+      
+      // Basic email validation
+      if (!_isValidEmail(email)) {
+        return false;
+      }
+      
+      // Return true by default - the actual check happens during sign-up
+      // This method is kept for UI convenience but should not be relied upon
+      // for definitive email availability
+      return true;
     } catch (e) {
       return false;
     }
+  }
+
+  /// Validate email format
+  bool _isValidEmail(String email) {
+    return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
   }
 
   // Private helper methods

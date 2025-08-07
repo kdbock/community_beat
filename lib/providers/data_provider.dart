@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../models/event.dart';
 import '../models/business.dart';
 import '../models/post.dart';
+import '../models/service_request.dart';
 import '../services/data_service.dart';
 import '../services/data_seeder.dart';
 
@@ -21,7 +22,7 @@ class DataProvider extends ChangeNotifier {
   List<Post> _posts = [];
   List<Business> _businesses = [];
   List<Event> _events = [];
-  List<Map<String, dynamic>> _serviceRequests = [];
+  List<ServiceRequest> _serviceRequests = [];
   List<Map<String, dynamic>> _emergencyAlerts = [];
   Map<String, int> _dashboardStats = {};
 
@@ -40,7 +41,7 @@ class DataProvider extends ChangeNotifier {
   List<Post> get posts => _filteredPosts;
   List<Business> get businesses => _filteredBusinesses;
   List<Event> get events => _filteredEvents;
-  List<Map<String, dynamic>> get serviceRequests => _serviceRequests;
+  List<ServiceRequest> get serviceRequests => _serviceRequests;
   List<Map<String, dynamic>> get emergencyAlerts => _emergencyAlerts;
   Map<String, int> get dashboardStats => _dashboardStats;
 
@@ -356,7 +357,7 @@ class DataProvider extends ChangeNotifier {
   }) async {
     _setLoading(true);
     try {
-      final requestId = await _dataService.submitServiceRequest(
+      final createdRequest = await _dataService.submitServiceRequest(
         title: title,
         description: description,
         category: category,
@@ -369,7 +370,7 @@ class DataProvider extends ChangeNotifier {
       await loadServiceRequests(refresh: true);
       
       _clearError();
-      return requestId;
+      return createdRequest.id;
     } catch (e) {
       _setError('Failed to submit service request: $e');
       return null;
@@ -547,8 +548,4 @@ class DataProvider extends ChangeNotifier {
 
   // CLEANUP
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }

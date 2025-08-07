@@ -1,0 +1,12 @@
+# Run this in your project root to upgrade Firebase Auth to the latest compatible version:
+flutter pub add firebase_auth@latest
+
+# Or manually update your pubspec.yaml as below:
+# Replace:
+#   firebase_auth: ^6.0.0
+# With:
+#   firebase_auth: ^6.1.0
+# (or the latest version compatible with your other Firebase packages)
+
+# After updating, run:
+flutter pub get

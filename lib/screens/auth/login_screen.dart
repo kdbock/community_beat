@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
-import '../../widgets/index.dart';
 import 'signup_screen.dart';
 import 'forgot_password_screen.dart';
 
