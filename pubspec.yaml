@@ -45,14 +45,14 @@ dependencies:
   table_calendar: ^3.0.9
   
   # Notifications
-  firebase_messaging: ^14.7.10
-  firebase_core: ^2.24.2
+  firebase_messaging: ^16.0.0
+  firebase_core: ^4.0.0
   
   # Forms
   flutter_form_builder: ^9.1.1
   
   # Image/File handling
-  image_picker: ^1.0.4
+  image_picker: ^1.1.2
   
   # HTTP requests
   http: ^1.1.2
@@ -67,7 +67,21 @@ dependencies:
   cached_network_image: ^3.3.0
   
   # Firebase storage
-  firebase_storage: ^11.6.0
+  firebase_storage: ^13.0.0
+  
+  # Cloud Firestore
+  cloud_firestore: ^6.0.0
+  
+  # Location services
+  geolocator: ^13.0.2
+  permission_handler: ^11.3.1
+  
+  # Authentication
+  firebase_auth: ^6.0.0
+  
+  # Advanced form functionality
+  file_picker: ^8.1.4
+  flutter_quill: ^8.4.3
 
 dev_dependencies:
   flutter_test:

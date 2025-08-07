@@ -6,6 +6,10 @@ import 'screens/business_directory_screen.dart';
 import 'screens/bulletin_board_screen.dart';
 import 'screens/public_services_screen.dart';
 import 'screens/map_screen.dart';
+import 'screens/firestore_test_screen.dart';
+import 'screens/auth/auth_wrapper.dart';
+import 'providers/data_provider.dart';
+import 'providers/auth_provider.dart';
 
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
@@ -28,9 +32,10 @@ class _MainAppState extends State<MainApp> {
   @override
   void initState() {
     super.initState();
-    // Initialize notifications
+    // Initialize notifications and auth
     WidgetsBinding.instance.addPostFrameCallback((_) {
       NotificationHandler.initialize(context);
+      context.read<AuthProvider>().initialize();
     });
   }
 
@@ -42,6 +47,8 @@ class _MainAppState extends State<MainApp> {
         ChangeNotifierProvider(create: (_) => NewsEventsProvider()),
         ChangeNotifierProvider(create: (_) => BusinessDirectoryProvider()),
         ChangeNotifierProvider(create: (_) => BulletinBoardProvider()),
+        ChangeNotifierProvider(create: (_) => DataProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: Consumer<AppStateProvider>(
         builder: (context, appState, child) {
@@ -76,6 +83,9 @@ class CommunityBeatApp extends StatelessWidget {
     return MaterialApp(
       title: 'Community Beat',
       debugShowCheckedModeBanner: false,
+      routes: {
+        '/firestore-test': (context) => const FirestoreTestScreen(),
+      },
       theme: ThemeData(
         primarySwatch: Colors.blue,
         primaryColor: Colors.blue[700],
@@ -122,7 +132,7 @@ class CommunityBeatApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const MainApp(),
+      home: const AuthWrapper(),
     );
   }
 }

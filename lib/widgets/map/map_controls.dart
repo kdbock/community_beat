@@ -5,7 +5,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class MapControls extends StatelessWidget {
   final VoidCallback? onRecenter;
   final Function(MapType)? onMapTypeChanged;
-  final Function(bool)? onToggleLayer;
+  final Function(bool)? onToggleBusinesses;
+  final Function(bool)? onToggleEvents;
+  final Function(bool)? onToggleServices;
   final MapType currentMapType;
   final bool showBusinesses;
   final bool showEvents;
@@ -15,7 +17,9 @@ class MapControls extends StatelessWidget {
     super.key,
     this.onRecenter,
     this.onMapTypeChanged,
-    this.onToggleLayer,
+    this.onToggleBusinesses,
+    this.onToggleEvents,
+    this.onToggleServices,
     this.currentMapType = MapType.normal,
     this.showBusinesses = true,
     this.showEvents = true,
@@ -118,7 +122,7 @@ class MapControls extends StatelessWidget {
               value: showBusinesses,
               onChanged: (value) {
                 Navigator.of(context).pop();
-                onToggleLayer?.call(value);
+                onToggleBusinesses?.call(value);
               },
             ),
             SwitchListTile(
@@ -127,7 +131,7 @@ class MapControls extends StatelessWidget {
               value: showEvents,
               onChanged: (value) {
                 Navigator.of(context).pop();
-                onToggleLayer?.call(value);
+                onToggleEvents?.call(value);
               },
             ),
             SwitchListTile(
@@ -136,7 +140,7 @@ class MapControls extends StatelessWidget {
               value: showServices,
               onChanged: (value) {
                 Navigator.of(context).pop();
-                onToggleLayer?.call(value);
+                onToggleServices?.call(value);
               },
             ),
           ],

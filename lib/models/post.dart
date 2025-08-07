@@ -1,6 +1,7 @@
 // lib/models/post.dart
 
 enum PostType {
+  general,
   buySell,
   job,
   housing,
@@ -9,6 +10,32 @@ enum PostType {
   service,
   event,
   other
+}
+
+// Extension for PostType to provide displayName
+extension PostTypeExtension on PostType {
+  String get displayName {
+    switch (this) {
+      case PostType.general:
+        return 'General';
+      case PostType.buySell:
+        return 'Buy/Sell';
+      case PostType.job:
+        return 'Job';
+      case PostType.housing:
+        return 'Housing';
+      case PostType.lostFound:
+        return 'Lost & Found';
+      case PostType.volunteer:
+        return 'Volunteer';
+      case PostType.service:
+        return 'Service';
+      case PostType.event:
+        return 'Event';
+      case PostType.other:
+        return 'Other';
+    }
+  }
 }
 
 class Post {
@@ -90,24 +117,7 @@ class Post {
   }
 
   String get typeDisplayName {
-    switch (type) {
-      case PostType.buySell:
-        return 'Buy/Sell';
-      case PostType.job:
-        return 'Job';
-      case PostType.housing:
-        return 'Housing';
-      case PostType.lostFound:
-        return 'Lost & Found';
-      case PostType.volunteer:
-        return 'Volunteer';
-      case PostType.service:
-        return 'Service';
-      case PostType.event:
-        return 'Event';
-      case PostType.other:
-        return 'Other';
-    }
+    return type.displayName;
   }
 
   bool get isExpired {
