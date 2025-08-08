@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import '../global/custom_image.dart';
 import '../global/custom_snackbar.dart';
+import '../moderation/report_dialog.dart';
+import '../../models/report.dart';
 
 /// Card widget for displaying bulletin board posts
 class PostCard extends StatelessWidget {
+  final String id;
   final String title;
   final String description;
   final String category;
   final String authorName;
+  final String? authorId;
   final DateTime createdAt;
   final List<String>? imageUrls;
   final VoidCallback? onTap;
@@ -18,10 +22,12 @@ class PostCard extends StatelessWidget {
 
   const PostCard({
     super.key,
+    required this.id,
     required this.title,
     required this.description,
     required this.category,
     required this.authorName,
+    this.authorId,
     required this.createdAt,
     this.imageUrls,
     this.onTap,
@@ -73,7 +79,7 @@ class PostCard extends StatelessWidget {
                           _showDeleteConfirmation(context);
                           break;
                         case 'report':
-                          _showReportConfirmation(context);
+                          _showReportDialog(context);
                           break;
                       }
                     },
@@ -233,18 +239,21 @@ class PostCard extends StatelessWidget {
     });
   }
 
-  void _showReportConfirmation(BuildContext context) {
-    CustomAlertDialog.showConfirmation(
-      context,
-      title: 'Report Post',
-      message: 'Are you sure you want to report this post? Our moderators will review it.',
-      confirmText: 'Report',
-      cancelText: 'Cancel',
-    ).then((confirmed) {
-      if (confirmed == true) {
-        onReport?.call();
-        CustomSnackBar.showInfo(context, 'Post reported. Thank you for helping keep our community safe.');
-      }
-    });
+  void _showReportDialog(BuildContext context) {
+    showReportDialog(
+      context: context,
+      contentId: id,
+      contentType: ReportedContentType.post,
+      reportedUserId: authorId,
+      reportedUserName: authorName,
+      contentSnapshot: {
+        'title': title,
+        'content': description,
+        'category': category,
+        'author_name': authorName,
+        'author_id': authorId,
+        'created_at': createdAt.toIso8601String(),
+      },
+    );
   }
 }

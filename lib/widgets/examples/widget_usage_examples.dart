@@ -8,7 +8,6 @@ import '../../providers/business_directory_provider.dart' as business;
 import '../../providers/bulletin_board_provider.dart' as bulletin;
 import '../../models/post_item.dart' as models;
 import '../../models/business_item.dart' as models;
-import '../../models/news_item.dart' as news_model;
 
 /// Example showing how to use the global widgets together
 class GlobalWidgetsExample extends StatefulWidget {
@@ -201,6 +200,7 @@ class BulletinBoardExample extends StatelessWidget {
                 items: provider.posts,
                 itemBuilder:
                     (context, post, index) => PostCard(
+                      id: post.id,
                       title: post.title,
                       description: post.description,
                       category: post.category,

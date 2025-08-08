@@ -1,6 +1,7 @@
 // lib/services/firestore_service.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'dart:math';
 import '../models/event.dart';
 import '../models/business.dart';
@@ -219,8 +220,9 @@ class FirestoreService {
       if (latitude != null && longitude != null && radiusKm != null) {
         businesses =
             businesses.where((business) {
-              if (business.latitude == null || business.longitude == null)
+              if (business.latitude == null || business.longitude == null) {
                 return false;
+              }
 
               final distance = _calculateDistance(
                 latitude,
@@ -888,18 +890,18 @@ extension FirestoreServiceExtensions on FirestoreService {
 
   /// Get user profile by UID
   Future<UserModel?> getUserProfile(String uid) async {
-    print('Fetching user profile for $uid');
+    debugPrint('Fetching user profile for $uid');
     try {
       final doc = await _usersCollection.doc(uid).get();
-      print('Document exists: ${doc.exists}');
+      debugPrint('Document exists: ${doc.exists}');
       if (doc.exists) {
-        print('User data: ${doc.data()}');
+        debugPrint('User data: ${doc.data()}');
         return UserModel.fromJson(doc.data() as Map<String, dynamic>);
       }
-      print('No user document found for $uid');
+      debugPrint('No user document found for $uid');
       return null;
     } catch (e) {
-      print('Error fetching user profile: $e');
+      debugPrint('Error fetching user profile: $e');
       return null;
     }
   }
@@ -1016,5 +1018,94 @@ extension FirestoreServiceExtensions on FirestoreService {
       }
       return null;
     });
+  }
+
+  /// Get businesses by owner
+  Future<List<Business>> getBusinessesByOwner(String userId) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection('businesses')
+          .where('owner_id', isEqualTo: userId)
+          .get();
+
+      return querySnapshot.docs
+          .map((doc) => Business.fromJson({
+                'id': doc.id,
+                ...doc.data(),
+              }))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to get businesses by owner: $e');
+    }
+  }
+
+  /// Get posts by user
+  Future<List<Post>> getPostsByUser(String userId) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection('posts')
+          .where('user_id', isEqualTo: userId)
+          .orderBy('created_at', descending: true)
+          .get();
+
+      return querySnapshot.docs
+          .map((doc) => Post.fromJson({
+                'id': doc.id,
+                ...doc.data(),
+              }))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to get posts by user: $e');
+    }
+  }
+
+  /// Get events by organizer
+  Future<List<Event>> getEventsByOrganizer(String userId) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection('events')
+          .where('organizer_id', isEqualTo: userId)
+          .orderBy('created_at', descending: true)
+          .get();
+
+      return querySnapshot.docs
+          .map((doc) => Event.fromJson({
+                'id': doc.id,
+                ...doc.data(),
+              }))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to get events by organizer: $e');
+    }
+  }
+
+  /// Delete a post
+  static Future<void> deletePost(String postId) async {
+    try {
+      await FirebaseFirestore.instance.collection('posts').doc(postId).delete();
+    } catch (e) {
+      throw Exception('Failed to delete post: $e');
+    }
+  }
+
+  /// Delete an event
+  static Future<void> deleteEvent(String eventId) async {
+    try {
+      await FirebaseFirestore.instance.collection('events').doc(eventId).delete();
+    } catch (e) {
+      throw Exception('Failed to delete event: $e');
+    }
+  }
+
+  /// Update user FCM token
+  Future<void> updateUserFCMToken(String userId, String token) async {
+    try {
+      await _usersCollection.doc(userId).update({
+        'fcm_token': token,
+        'updated_at': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      throw Exception('Failed to update FCM token: $e');
+    }
   }
 }

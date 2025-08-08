@@ -2,6 +2,7 @@
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'data_service.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -172,9 +173,10 @@ class NotificationService {
     if (_fcmToken == null || userId == null) return;
 
     try {
-      // TODO: Send token to your backend server
-      // await ApiService().updateUserToken(userId, _fcmToken!);
-      debugPrint('Token sent to server for user: $userId');
+      // Store token in Firestore for the user
+      final dataService = DataService();
+      await dataService.updateUserFCMToken(userId, _fcmToken!);
+      debugPrint('FCM token stored in Firestore for user: $userId');
     } catch (e) {
       debugPrint('Error sending token to server: $e');
     }

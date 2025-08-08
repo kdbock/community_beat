@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../screens/notifications_screen.dart';
+import '../../screens/business/business_dashboard_screen.dart';
+import '../../screens/moderation/moderation_dashboard_screen.dart';
+import '../../providers/auth_provider.dart';
+import '../../models/user_model.dart';
 
 /// Custom drawer for side menu with settings and help options
 class CustomDrawer extends StatelessWidget {
@@ -35,6 +41,51 @@ class CustomDrawer extends StatelessWidget {
               ],
             ),
           ),
+          // Business Dashboard - only show for business owners and admins
+          Consumer<AuthProvider>(
+            builder: (context, authProvider, child) {
+              final user = authProvider.currentUser;
+              if (user != null && (user.role == UserRole.businessOwner || user.role == UserRole.admin)) {
+                return ListTile(
+                  leading: const Icon(Icons.business),
+                  title: const Text('Business Dashboard'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const BusinessDashboardScreen(),
+                      ),
+                    );
+                  },
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+          
+          // Moderation Dashboard - only show for moderators and admins
+          Consumer<AuthProvider>(
+            builder: (context, authProvider, child) {
+              final user = authProvider.currentUser;
+              if (user != null && (user.role == UserRole.moderator || user.role == UserRole.admin)) {
+                return ListTile(
+                  leading: const Icon(Icons.shield),
+                  title: const Text('Content Moderation'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ModerationDashboardScreen(),
+                      ),
+                    );
+                  },
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
           ListTile(
             leading: const Icon(Icons.settings),
             title: const Text('Settings'),
@@ -48,7 +99,12 @@ class CustomDrawer extends StatelessWidget {
             title: const Text('Notifications'),
             onTap: () {
               Navigator.pop(context);
-              // Navigate to notification settings
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationsScreen(),
+                ),
+              );
             },
           ),
           ListTile(

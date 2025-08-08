@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import '../models/post_item.dart';
+import '../services/data_service.dart';
 
 class BulletinBoardProvider extends ChangeNotifier {
+  final DataService _dataService = DataService();
+  
   bool _isLoading = false;
   String? _error;
   List<PostItem> _posts = [];
@@ -25,11 +28,19 @@ class BulletinBoardProvider extends ChangeNotifier {
       _isLoading = true;
       notifyListeners();
 
-      // TODO: Implement actual post fetching logic
-      await Future.delayed(
-        const Duration(seconds: 1),
-      ); // Simulate network delay
-      _posts = []; // Replace with actual data
+      // Fetch posts from Firestore
+      final posts = await _dataService.getPosts();
+      _posts = posts.map((post) => 
+        PostItem(
+          id: post.id,
+          title: post.title,
+          description: post.description,
+          authorName: post.authorName,
+          category: post.category,
+          createdAt: post.createdAt,
+          imageUrls: post.imageUrls.isNotEmpty ? post.imageUrls : null,
+        )
+      ).toList();
 
       _error = null;
     } catch (e) {
@@ -50,11 +61,19 @@ class BulletinBoardProvider extends ChangeNotifier {
       _isLoading = true;
       notifyListeners();
 
-      // TODO: Implement actual post fetching logic
-      await Future.delayed(
-        const Duration(seconds: 1),
-      ); // Simulate network delay
-      _posts = []; // Replace with actual data
+      // Fetch posts from Firestore
+      final posts = await _dataService.getPosts();
+      _posts = posts.map((post) => 
+        PostItem(
+          id: post.id,
+          title: post.title,
+          description: post.description,
+          authorName: post.authorName,
+          category: post.category,
+          createdAt: post.createdAt,
+          imageUrls: post.imageUrls.isNotEmpty ? post.imageUrls : null,
+        )
+      ).toList();
 
       _error = null;
     } catch (e) {

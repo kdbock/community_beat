@@ -1,5 +1,6 @@
 // lib/services/data_service.dart
 
+import 'package:flutter/foundation.dart';
 import '../models/event.dart';
 import '../models/business.dart';
 import '../models/post.dart';
@@ -357,6 +358,18 @@ class DataService {
         'upcoming_events': 0,
         'pending_service_requests': 0,
       };
+    }
+  }
+
+  // USER TOKEN OPERATIONS
+
+  /// Update user's FCM token for push notifications
+  Future<void> updateUserFCMToken(String userId, String fcmToken) async {
+    try {
+      await _firestoreService.updateUserFCMToken(userId, fcmToken);
+    } catch (e) {
+      debugPrint('Error updating user FCM token: $e');
+      rethrow;
     }
   }
 }

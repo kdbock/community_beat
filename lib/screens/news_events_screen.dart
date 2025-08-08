@@ -3,8 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/event.dart';
-import '../widgets/index.dart' hide NewsEventsProvider;
+import '../widgets/index.dart';
 import '../providers/news_events_provider.dart';
+import 'forms/event_form_screen.dart';
+import 'search/news_events_search_screen.dart';
+import 'event_detail_screen.dart';
 
 class NewsEventsScreen extends StatefulWidget {
   const NewsEventsScreen({super.key});
@@ -52,7 +55,12 @@ class _NewsEventsScreenState extends State<NewsEventsScreen>
               IconButton(
                 icon: const Icon(Icons.search),
                 onPressed: () {
-                  // TODO: Implement search
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const NewsEventsSearchScreen(),
+                    ),
+                  );
                 },
               ),
               IconButton(
@@ -96,13 +104,8 @@ class _NewsEventsScreenState extends State<NewsEventsScreen>
             ],
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              CustomSnackBar.showInfo(
-                context,
-                'Add new event feature coming soon!',
-              );
-            },
-            tooltip: 'Add new event',
+            onPressed: () => _showCreateEventForm(),
+            tooltip: 'Create new event',
             child: const Icon(Icons.add),
           ),
         );
@@ -123,7 +126,12 @@ class _NewsEventsScreenState extends State<NewsEventsScreen>
                 isEvent: event.category != 'Alert',
                 eventDate: event.startDate,
                 onTap: () {
-                  CustomSnackBar.showInfo(context, 'Opening ${event.title}...');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EventDetailScreen(event: event),
+                    ),
+                  );
                 },
               ),
             )
@@ -255,7 +263,12 @@ class _NewsEventsScreenState extends State<NewsEventsScreen>
             isEvent: true,
             eventDate: event.startDate,
             onTap: () {
-              CustomSnackBar.showInfo(context, 'Opening ${event.title}...');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EventDetailScreen(event: event),
+                ),
+              );
             },
           ),
     );
@@ -298,5 +311,23 @@ class _NewsEventsScreenState extends State<NewsEventsScreen>
         isUrgent: true,
       ),
     ];
+  }
+
+  void _showCreateEventForm() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const EventFormScreen(),
+      ),
+    ).then((newEvent) {
+      if (newEvent != null && newEvent is Event && mounted) {
+        // Refresh the events list
+        context.read<NewsEventsProvider>().loadEvents();
+        CustomSnackBar.showSuccess(
+          context,
+          'Event "${newEvent.title}" created successfully!',
+        );
+      }
+    });
   }
 }

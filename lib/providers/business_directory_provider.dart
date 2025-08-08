@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import '../models/business_item.dart';
+import '../services/data_service.dart';
 
 class BusinessDirectoryProvider extends ChangeNotifier {
+  final DataService _dataService = DataService();
+  
   bool _isLoading = false;
   String? _error;
   List<BusinessItem> _businesses = [];
@@ -27,40 +30,21 @@ class BusinessDirectoryProvider extends ChangeNotifier {
       _isLoading = true;
       notifyListeners();
 
-      // TODO: Replace with actual API call
-      await Future.delayed(const Duration(seconds: 1));
-
-      // Mock data for demonstration
-      _businesses = [
+      // Fetch businesses from Firestore
+      final businesses = await _dataService.getBusinesses();
+      _businesses = businesses.map((business) => 
         BusinessItem(
-          id: '1',
-          name: 'Sample Restaurant',
-          description: 'A cozy local restaurant',
-          category: 'Food',
-          rating: 4.5,
-        ),
-        BusinessItem(
-          id: '2',
-          name: 'Local Market',
-          description: 'Fresh produce and groceries',
-          category: 'Shopping',
-          rating: 4.0,
-        ),
-        BusinessItem(
-          id: '3',
-          name: 'Community Salon',
-          description: 'Professional hair and beauty services',
-          category: 'Services',
-          rating: 4.8,
-        ),
-        BusinessItem(
-          id: '4',
-          name: 'Movie Theater',
-          description: 'Latest movies and entertainment',
-          category: 'Entertainment',
-          rating: 4.2,
-        ),
-      ];
+          id: business.id,
+          name: business.name,
+          description: business.description,
+          category: business.category,
+          rating: business.rating,
+          phone: business.phone,
+          email: business.email,
+          website: business.website,
+          imageUrl: business.imageUrls.isNotEmpty ? business.imageUrls.first : null,
+        )
+      ).toList();
 
       // Apply filters if any
       _applyFilters();

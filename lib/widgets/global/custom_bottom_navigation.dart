@@ -33,6 +33,10 @@ class CustomBottomNavigation extends StatelessWidget {
           label: 'Bulletin',
         ),
         BottomNavigationBarItem(
+          icon: Icon(Icons.poll),
+          label: 'Polls',
+        ),
+        BottomNavigationBarItem(
           icon: Icon(Icons.account_balance),
           label: 'Services',
         ),

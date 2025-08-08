@@ -4,6 +4,7 @@ import 'widgets/index.dart';
 import 'screens/news_events_screen.dart';
 import 'screens/business_directory_screen.dart';
 import 'screens/bulletin_board_screen.dart';
+import 'screens/polls/polls_screen.dart';
 import 'screens/public_services_screen.dart';
 import 'screens/map_screen.dart';
 import 'screens/firestore_test_screen.dart';
@@ -14,6 +15,7 @@ import 'providers/app_state_provider.dart' show AppStateProvider;
 import 'providers/news_events_provider.dart' as news;
 import 'providers/business_directory_provider.dart' as business;
 import 'providers/bulletin_board_provider.dart' as bulletin;
+import 'providers/notification_provider.dart';
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
@@ -30,6 +32,7 @@ class MainApp extends StatelessWidget {
           create: (_) => business.BusinessDirectoryProvider(),
         ),
         ChangeNotifierProvider(create: (_) => bulletin.BulletinBoardProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
       ],
       child: MaterialApp(
         title: 'Community Beat',
@@ -57,6 +60,7 @@ class _AppContentState extends State<AppContent> {
     const NewsEventsScreen(),
     const BusinessDirectoryScreen(),
     const BulletinBoardScreen(),
+    const PollsScreen(),
     const PublicServicesScreen(),
     const MapScreen(),
   ];
@@ -107,6 +111,7 @@ class CommunityBeatApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(create: (_) => bulletin.BulletinBoardProvider()),
         ChangeNotifierProvider(create: (_) => DataProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
       ],
       child: MaterialApp(
         title: 'Community Beat',

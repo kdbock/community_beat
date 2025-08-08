@@ -9,6 +9,7 @@ enum PostType {
   volunteer,
   service,
   event,
+  business,
   other
 }
 
@@ -32,6 +33,8 @@ extension PostTypeExtension on PostType {
         return 'Service';
       case PostType.event:
         return 'Event';
+      case PostType.business:
+        return 'Business';
       case PostType.other:
         return 'Other';
     }

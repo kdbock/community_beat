@@ -7,6 +7,7 @@ import '../models/business.dart';
 import '../models/business_item.dart' as models;
 import '../utils/constants.dart';
 import '../providers/business_directory_provider.dart';
+import 'business/business_detail_screen.dart';
 
 class BusinessDirectoryScreen extends StatefulWidget {
   const BusinessDirectoryScreen({super.key});
@@ -94,9 +95,10 @@ class _BusinessDirectoryScreenState extends State<BusinessDirectoryScreen> {
                 hasDeals: business.deals.isNotEmpty,
                 isNew: business.isNew,
                 onTap: () {
-                  CustomSnackBar.showInfo(
-                    context,
-                    'Opening ${business.name}...',
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => BusinessDetailScreen(business: business),
+                    ),
                   );
                 },
               ),

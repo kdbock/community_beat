@@ -1,6 +1,8 @@
 // lib/widgets/custom_app_bar.dart
 
 import 'package:flutter/material.dart';
+import 'notifications/notification_badge.dart';
+import '../screens/search/advanced_search_screen.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -10,6 +12,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Color? backgroundColor;
   final Color? foregroundColor;
   final PreferredSizeWidget? bottom;
+  final bool showNotificationBadge;
 
   const CustomAppBar({
     super.key,
@@ -20,6 +23,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.backgroundColor,
     this.foregroundColor,
     this.bottom,
+    this.showNotificationBadge = true,
   });
 
   @override
@@ -36,7 +40,23 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: backgroundColor ?? Theme.of(context).primaryColor,
       foregroundColor: foregroundColor ?? Colors.white,
       elevation: 0,
-      actions: actions,
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.search),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AdvancedSearchScreen(),
+              ),
+            );
+          },
+          tooltip: 'Advanced Search',
+        ),
+        if (showNotificationBadge)
+          NotificationBadge(iconColor: foregroundColor ?? Colors.white),
+        ...?actions,
+      ],
       leading: leading,
       bottom: bottom,
     );

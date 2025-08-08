@@ -364,11 +364,18 @@ class FormService {
         startDate: draft.startDate,
         endDate: draft.endDate,
         location: draft.location,
+        address: draft.address,
         imageUrl: imageUrls.isNotEmpty ? imageUrls.first : null,
+        imageUrls: imageUrls,
         category: draft.category,
         organizer: user.displayName ?? 'Anonymous',
-        // Remove contactInfo and isUrgent if not present in EventDraft
+        contactInfo: user.email,
+        isUrgent: false, // Events don't have urgent flag like service requests
         tags: draft.tags,
+        maxAttendees: draft.maxAttendees,
+        ticketPrice: draft.ticketPrice,
+        isRecurring: draft.isRecurring,
+        recurringPattern: draft.recurringPattern,
       );
 
       // Save to Firestore

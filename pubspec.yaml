@@ -86,6 +86,15 @@ dependencies:
   # Environment variable support
   flutter_dotenv: ^5.1.0
 
+  # Sharing functionality
+  share_plus: ^10.1.2
+  
+  # Charts for moderation statistics
+  fl_chart: ^0.69.0
+  
+  # Time formatting
+  timeago: ^3.7.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

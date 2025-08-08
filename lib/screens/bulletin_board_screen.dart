@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../widgets/index.dart' hide BulletinBoardProvider;
+import '../widgets/index.dart';
 import '../models/post.dart';
 import '../models/post_item.dart';
 import '../providers/bulletin_board_provider.dart';
@@ -121,6 +121,7 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
       items: posts,
       itemBuilder:
           (context, post, index) => PostCard(
+            id: post.id,
             title: post.title,
             description: post.description,
             category: post.category,

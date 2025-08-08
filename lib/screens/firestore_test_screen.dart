@@ -246,6 +246,8 @@ class _FirestoreTestScreenState extends State<FirestoreTestScreen> {
         return Colors.teal;
       case PostType.event:
         return Colors.indigo;
+      case PostType.business:
+        return Colors.amber;
       case PostType.other:
         return Colors.grey;
     }
