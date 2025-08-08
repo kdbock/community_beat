@@ -36,5 +36,4 @@ export 'map/map_controls.dart';
 // Admin/Moderation Widgets
 export 'admin/moderation_widgets.dart';
 
-// Providers
-export '../providers/app_state_provider.dart' hide BusinessItem;
+// No provider exports - providers should be imported directly

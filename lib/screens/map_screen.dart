@@ -22,7 +22,7 @@ class _MapScreenState extends State<MapScreen> {
   bool _showEvents = true;
   bool _showPosts = true;
   bool _isLoading = false;
-  
+
   LatLng _currentPosition = MapService.defaultLocation;
   Set<Marker> _markers = {};
   final MapService _mapService = MapService();
@@ -72,30 +72,28 @@ class _MapScreenState extends State<MapScreen> {
             },
             onTap: (LatLng position) {
               CustomSnackBar.showInfo(
-                context, 
-                'Tapped at: ${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)}'
+                context,
+                'Tapped at: ${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)}',
               );
             },
             myLocationEnabled: true,
             myLocationButtonEnabled: false, // We'll use our custom button
             zoomControlsEnabled: false, // We'll use our custom controls
           ),
-          
+
           // Loading indicator
           if (_isLoading)
             Container(
               color: Colors.black26,
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
+              child: const Center(child: CircularProgressIndicator()),
             ),
-          
+
           // Search bar
           MapSearchBar(
             onSearch: _performSearch,
             onCurrentLocation: _centerOnCurrentLocation,
           ),
-          
+
           // Map controls
           MapControls(
             currentMapType: _currentMapType,
@@ -112,10 +110,10 @@ class _MapScreenState extends State<MapScreen> {
             onToggleEvents: (value) => _toggleLayer('events'),
             onToggleServices: (value) => _toggleLayer('posts'),
           ),
-          
+
           // Map legend
           const MapLegend(),
-          
+
           // Refresh button
           Positioned(
             bottom: 100,
@@ -151,9 +149,12 @@ class _MapScreenState extends State<MapScreen> {
 
       // Load initial markers
       await _loadMarkers();
+      if (!mounted) return;
     } catch (e) {
+      if (!mounted) return;
       CustomSnackBar.showError(context, 'Failed to initialize map: $e');
     } finally {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
@@ -173,11 +174,12 @@ class _MapScreenState extends State<MapScreen> {
         userLocation: _currentPosition,
         radiusKm: 10.0, // 10km radius
       );
-
+      if (!mounted) return;
       setState(() {
         _markers = markers;
       });
     } catch (e) {
+      if (!mounted) return;
       CustomSnackBar.showError(context, 'Failed to load markers: $e');
     }
   }
@@ -189,28 +191,26 @@ class _MapScreenState extends State<MapScreen> {
 
     try {
       final currentLocation = await _mapService.getCurrentLocation();
+      if (!mounted) return;
       if (currentLocation != null && _mapController != null) {
         _currentPosition = currentLocation;
-        
         await _mapController!.animateCamera(
           CameraUpdate.newCameraPosition(
-            CameraPosition(
-              target: currentLocation,
-              zoom: 16.0,
-            ),
+            CameraPosition(target: currentLocation, zoom: 16.0),
           ),
         );
-        
+        if (!mounted) return;
         CustomSnackBar.showSuccess(context, 'Centered on current location');
-        
         // Reload markers with new location
         await _loadMarkers();
       } else {
         CustomSnackBar.showWarning(context, 'Could not get current location');
       }
     } catch (e) {
+      if (!mounted) return;
       CustomSnackBar.showError(context, 'Failed to get location: $e');
     } finally {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
@@ -226,14 +226,15 @@ class _MapScreenState extends State<MapScreen> {
       // Refresh data in provider
       final dataProvider = context.read<DataProvider>();
       await dataProvider.refreshAllData();
-      
       // Reload markers
       await _loadMarkers();
-      
+      if (!mounted) return;
       CustomSnackBar.showSuccess(context, 'Map refreshed');
     } catch (e) {
+      if (!mounted) return;
       CustomSnackBar.showError(context, 'Failed to refresh map: $e');
     } finally {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
@@ -254,7 +255,7 @@ class _MapScreenState extends State<MapScreen> {
           break;
       }
     });
-    
+
     _loadMarkers();
     CustomSnackBar.showInfo(context, 'Layer toggled: $layer');
   }
@@ -268,7 +269,7 @@ class _MapScreenState extends State<MapScreen> {
 
     try {
       final results = await _mapService.searchLocations(query);
-      
+      if (!mounted) return;
       if (results.isNotEmpty) {
         // Show search results dialog
         _showSearchResults(results);
@@ -276,8 +277,10 @@ class _MapScreenState extends State<MapScreen> {
         CustomSnackBar.showInfo(context, 'No results found for "$query"');
       }
     } catch (e) {
+      if (!mounted) return;
       CustomSnackBar.showError(context, 'Search failed: $e');
     } finally {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
@@ -287,37 +290,41 @@ class _MapScreenState extends State<MapScreen> {
   void _showSearchResults(List<MapSearchResult> results) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Search Results (${results.length})',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView.builder(
-                itemCount: results.length,
-                itemBuilder: (context, index) {
-                  final result = results[index];
-                  return ListTile(
-                    leading: Icon(_getSearchResultIcon(result.type)),
-                    title: Text(result.title),
-                    subtitle: Text(result.subtitle),
-                    onTap: () {
-                      Navigator.pop(context);
-                      _goToLocation(result.position);
+      builder:
+          (context) => Container(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Search Results (${results.length})',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: results.length,
+                    itemBuilder: (context, index) {
+                      final result = results[index];
+                      return ListTile(
+                        leading: Icon(_getSearchResultIcon(result.type)),
+                        title: Text(result.title),
+                        subtitle: Text(result.subtitle),
+                        onTap: () {
+                          Navigator.pop(context);
+                          _goToLocation(result.position);
+                        },
+                      );
                     },
-                  );
-                },
-              ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
     );
   }
 
@@ -338,10 +345,7 @@ class _MapScreenState extends State<MapScreen> {
     if (_mapController != null) {
       await _mapController!.animateCamera(
         CameraUpdate.newCameraPosition(
-          CameraPosition(
-            target: position,
-            zoom: 16.0,
-          ),
+          CameraPosition(target: position, zoom: 16.0),
         ),
       );
     }
@@ -350,58 +354,59 @@ class _MapScreenState extends State<MapScreen> {
   void _showFilterDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Map Filters'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Layer toggles
-              CheckboxListTile(
-                title: const Text('Show Businesses'),
-                value: _showBusinesses,
-                onChanged: (value) {
-                  setState(() {
-                    _showBusinesses = value ?? true;
-                  });
-                },
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Map Filters'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Layer toggles
+                  CheckboxListTile(
+                    title: const Text('Show Businesses'),
+                    value: _showBusinesses,
+                    onChanged: (value) {
+                      setState(() {
+                        _showBusinesses = value ?? true;
+                      });
+                    },
+                  ),
+                  CheckboxListTile(
+                    title: const Text('Show Events'),
+                    value: _showEvents,
+                    onChanged: (value) {
+                      setState(() {
+                        _showEvents = value ?? true;
+                      });
+                    },
+                  ),
+                  CheckboxListTile(
+                    title: const Text('Show Posts'),
+                    value: _showPosts,
+                    onChanged: (value) {
+                      setState(() {
+                        _showPosts = value ?? true;
+                      });
+                    },
+                  ),
+                  // Add category filters here if needed
+                ],
               ),
-              CheckboxListTile(
-                title: const Text('Show Events'),
-                value: _showEvents,
-                onChanged: (value) {
-                  setState(() {
-                    _showEvents = value ?? true;
-                  });
-                },
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
               ),
-              CheckboxListTile(
-                title: const Text('Show Posts'),
-                value: _showPosts,
-                onChanged: (value) {
-                  setState(() {
-                    _showPosts = value ?? true;
-                  });
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _loadMarkers();
                 },
+                child: const Text('Apply'),
               ),
-              // Add category filters here if needed
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _loadMarkers();
-            },
-            child: const Text('Apply'),
-          ),
-        ],
-      ),
     );
   }
 

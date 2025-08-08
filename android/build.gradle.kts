@@ -1,13 +1,21 @@
-allprojects {
+buildscript {
+    extra.apply {
+        set("minSdkVersion", 24)
+    }
     repositories {
         google()
         mavenCentral()
     }
-}
-
-buildscript {
     dependencies {
         classpath("com.google.gms:google-services:4.4.0")
+        classpath("com.android.tools.build:gradle:8.3.0")
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
     }
 }
 

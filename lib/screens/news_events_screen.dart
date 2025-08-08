@@ -3,7 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/event.dart';
-import '../widgets/index.dart';
+import '../widgets/index.dart' hide NewsEventsProvider;
+import '../providers/news_events_provider.dart';
 
 class NewsEventsScreen extends StatefulWidget {
   const NewsEventsScreen({super.key});
@@ -41,10 +42,7 @@ class _NewsEventsScreenState extends State<NewsEventsScreen>
           appBar: AppBar(
             title: const Text(
               'News & Events',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
             centerTitle: true,
             backgroundColor: Theme.of(context).primaryColor,
@@ -73,7 +71,10 @@ class _NewsEventsScreenState extends State<NewsEventsScreen>
                 onPressed: () {
                   provider.loadNews();
                   provider.loadEvents();
-                  CustomSnackBar.showInfo(context, 'Refreshing news and events...');
+                  CustomSnackBar.showInfo(
+                    context,
+                    'Refreshing news and events...',
+                  );
                 },
               ),
             ],
@@ -96,7 +97,10 @@ class _NewsEventsScreenState extends State<NewsEventsScreen>
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
-              CustomSnackBar.showInfo(context, 'Add new event feature coming soon!');
+              CustomSnackBar.showInfo(
+                context,
+                'Add new event feature coming soon!',
+              );
             },
             tooltip: 'Add new event',
             child: const Icon(Icons.add),
@@ -107,18 +111,23 @@ class _NewsEventsScreenState extends State<NewsEventsScreen>
   }
 
   Widget _buildFeedTab(NewsEventsProvider provider) {
-    final newsItems = _getMockEvents().map((event) => NewsItem(
-      id: event.id,
-      title: event.title,
-      description: event.description,
-      imageUrl: event.imageUrl,
-      publishedAt: event.startDate,
-      isEvent: event.category != 'Alert',
-      eventDate: event.startDate,
-      onTap: () {
-        CustomSnackBar.showInfo(context, 'Opening ${event.title}...');
-      },
-    )).toList();
+    final newsItems =
+        _getMockEvents()
+            .map(
+              (event) => NewsItem(
+                id: event.id,
+                title: event.title,
+                description: event.description,
+                imageUrl: event.imageUrl,
+                publishedAt: event.startDate,
+                isEvent: event.category != 'Alert',
+                eventDate: event.startDate,
+                onTap: () {
+                  CustomSnackBar.showInfo(context, 'Opening ${event.title}...');
+                },
+              ),
+            )
+            .toList();
 
     return NewsList(
       newsItems: newsItems,
@@ -131,10 +140,11 @@ class _NewsEventsScreenState extends State<NewsEventsScreen>
   }
 
   Widget _buildCalendarTab(NewsEventsProvider provider) {
-    final eventDates = _getMockEvents()
-        .where((event) => event.category != 'Alert')
-        .map((event) => event.startDate)
-        .toList();
+    final eventDates =
+        _getMockEvents()
+            .where((event) => event.category != 'Alert')
+            .map((event) => event.startDate)
+            .toList();
 
     return Column(
       children: [
@@ -143,27 +153,32 @@ class _NewsEventsScreenState extends State<NewsEventsScreen>
           selectedDay: provider.selectedDate,
           onDaySelected: (date) {
             provider.setSelectedDate(date);
-            CustomSnackBar.showInfo(context, 'Selected ${date.day}/${date.month}/${date.year}');
+            CustomSnackBar.showInfo(
+              context,
+              'Selected ${date.day}/${date.month}/${date.year}',
+            );
           },
         ),
         Expanded(
-          child: provider.selectedDate != null
-              ? _buildEventsForDate(provider.selectedDate!)
-              : const Center(
-                  child: Text(
-                    'Select a date to view events',
-                    style: TextStyle(color: Colors.grey),
+          child:
+              provider.selectedDate != null
+                  ? _buildEventsForDate(provider.selectedDate!)
+                  : const Center(
+                    child: Text(
+                      'Select a date to view events',
+                      style: TextStyle(color: Colors.grey),
+                    ),
                   ),
-                ),
         ),
       ],
     );
   }
 
   Widget _buildAlertsTab(NewsEventsProvider provider) {
-    final alerts = _getMockEvents()
-        .where((event) => event.category == 'Alert' || event.isUrgent)
-        .toList();
+    final alerts =
+        _getMockEvents()
+            .where((event) => event.category == 'Alert' || event.isUrgent)
+            .toList();
 
     if (alerts.isEmpty) {
       return const Center(
@@ -189,32 +204,36 @@ class _NewsEventsScreenState extends State<NewsEventsScreen>
 
     return CustomListView<Event>(
       items: alerts,
-      itemBuilder: (context, alert, index) => NewsCard(
-        title: alert.title,
-        description: alert.description,
-        imageUrl: alert.imageUrl,
-        publishedAt: alert.startDate,
-        isEvent: false,
-        onTap: () {
-          CustomAlertDialog.showInfo(
-            context,
+      itemBuilder:
+          (context, alert, index) => NewsCard(
             title: alert.title,
-            message: alert.description,
-          );
-        },
-      ),
+            description: alert.description,
+            imageUrl: alert.imageUrl,
+            publishedAt: alert.startDate,
+            isEvent: false,
+            onTap: () {
+              CustomAlertDialog.showInfo(
+                context,
+                title: alert.title,
+                message: alert.description,
+              );
+            },
+          ),
       isLoading: provider.isLoading,
       onRefresh: () => provider.loadNews(),
     );
   }
 
   Widget _buildEventsForDate(DateTime date) {
-    final eventsForDate = _getMockEvents()
-        .where((event) => 
-            event.startDate.year == date.year &&
-            event.startDate.month == date.month &&
-            event.startDate.day == date.day)
-        .toList();
+    final eventsForDate =
+        _getMockEvents()
+            .where(
+              (event) =>
+                  event.startDate.year == date.year &&
+                  event.startDate.month == date.month &&
+                  event.startDate.day == date.day,
+            )
+            .toList();
 
     if (eventsForDate.isEmpty) {
       return const Center(
@@ -227,28 +246,28 @@ class _NewsEventsScreenState extends State<NewsEventsScreen>
 
     return CustomListView<Event>(
       items: eventsForDate,
-      itemBuilder: (context, event, index) => NewsCard(
-        title: event.title,
-        description: event.description,
-        imageUrl: event.imageUrl,
-        publishedAt: event.startDate,
-        isEvent: true,
-        eventDate: event.startDate,
-        onTap: () {
-          CustomSnackBar.showInfo(context, 'Opening ${event.title}...');
-        },
-      ),
+      itemBuilder:
+          (context, event, index) => NewsCard(
+            title: event.title,
+            description: event.description,
+            imageUrl: event.imageUrl,
+            publishedAt: event.startDate,
+            isEvent: true,
+            eventDate: event.startDate,
+            onTap: () {
+              CustomSnackBar.showInfo(context, 'Opening ${event.title}...');
+            },
+          ),
     );
   }
-
-
 
   List<Event> _getMockEvents() {
     return [
       Event(
         id: '1',
         title: 'Town Hall Meeting',
-        description: 'Monthly town hall meeting to discuss community issues and upcoming projects.',
+        description:
+            'Monthly town hall meeting to discuss community issues and upcoming projects.',
         startDate: DateTime.now().add(const Duration(days: 3)),
         location: 'City Hall, Main Street',
         category: 'Government',
@@ -258,7 +277,8 @@ class _NewsEventsScreenState extends State<NewsEventsScreen>
       Event(
         id: '2',
         title: 'Summer Festival',
-        description: 'Annual summer festival with live music, food vendors, and family activities.',
+        description:
+            'Annual summer festival with live music, food vendors, and family activities.',
         startDate: DateTime.now().add(const Duration(days: 15)),
         endDate: DateTime.now().add(const Duration(days: 17)),
         location: 'Central Park',
@@ -269,7 +289,8 @@ class _NewsEventsScreenState extends State<NewsEventsScreen>
       Event(
         id: '3',
         title: 'Road Closure Alert',
-        description: 'Main Street will be closed for construction from 8 AM to 5 PM.',
+        description:
+            'Main Street will be closed for construction from 8 AM to 5 PM.',
         startDate: DateTime.now().add(const Duration(days: 1)),
         location: 'Main Street (between 1st and 3rd Ave)',
         category: 'Alert',
@@ -279,4 +300,3 @@ class _NewsEventsScreenState extends State<NewsEventsScreen>
     ];
   }
 }
-

@@ -64,25 +64,28 @@ class DefaultFirebaseOptions {
     messagingSenderId: '614152838105',
     projectId: 'community-beat-4b79a',
     storageBucket: 'community-beat-4b79a.firebasestorage.app',
+    iosClientId: '614152838105-il6gi05davbam0k85e7o10e7n3lbds2i.apps.googleusercontent.com',
     iosBundleId: 'com.wordnerd.communitybeat',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyAGL3K3G5XZKDh1LDyEnjz6b--zBXsZy1s',
-    appId: '1:614152838105:ios:c13d31d7ae6ea9460e57c8',
+    appId: '1:614152838105:ios:c351473c6be3bea00e57c8',
     messagingSenderId: '614152838105',
     projectId: 'community-beat-4b79a',
     storageBucket: 'community-beat-4b79a.firebasestorage.app',
-    iosBundleId: 'com.wordnerd.communitybeat',
+    iosClientId: '614152838105-rgfq95oqdj2lrkntma27mm7t6cdf3eh5.apps.googleusercontent.com',
+    iosBundleId: 'com.example.communityBeat',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
     apiKey: 'AIzaSyBVZACEG_fqLkE28W-1j_bNb0Q9IMEyjBg',
-    appId: '1:614152838105:web:646f4857738dfd7e0e57c8',
+    appId: '1:614152838105:web:2d8e33eda37361140e57c8',
     messagingSenderId: '614152838105',
     projectId: 'community-beat-4b79a',
     authDomain: 'community-beat-4b79a.firebaseapp.com',
     storageBucket: 'community-beat-4b79a.firebasestorage.app',
-    measurementId: 'G-0ZTX1NWH7P',
+    measurementId: 'G-RZRKEW1Q7J',
   );
+
 }

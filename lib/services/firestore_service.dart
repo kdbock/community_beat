@@ -9,6 +9,11 @@ import '../models/user_model.dart';
 import '../models/service_request.dart';
 
 class FirestoreService {
+  /// Public method to get user profile by UID (for provider compatibility)
+  Future<UserModel?> getUserProfile(String uid) async {
+    return await FirestoreServiceExtensions(this).getUserProfile(uid);
+  }
+
   static final FirestoreService _instance = FirestoreService._internal();
   factory FirestoreService() => _instance;
   FirestoreService._internal();
@@ -17,23 +22,26 @@ class FirestoreService {
 
   // Collection references
   CollectionReference get _postsCollection => _firestore.collection('posts');
-  CollectionReference get _businessesCollection => _firestore.collection('businesses');
+  CollectionReference get _businessesCollection =>
+      _firestore.collection('businesses');
   CollectionReference get _eventsCollection => _firestore.collection('events');
-  CollectionReference get _serviceRequestsCollection => _firestore.collection('service_requests');
-  CollectionReference get _emergencyAlertsCollection => _firestore.collection('emergency_alerts');
+  CollectionReference get _serviceRequestsCollection =>
+      _firestore.collection('service_requests');
+  CollectionReference get _emergencyAlertsCollection =>
+      _firestore.collection('emergency_alerts');
   CollectionReference get _usersCollection => _firestore.collection('users');
 
   // POSTS CRUD OPERATIONS
-  
+
   /// Create a new post
   Future<Post> createPost(Post post) async {
     try {
       final docRef = await _postsCollection.add(post.toJson());
       final createdPost = post.copyWith(id: docRef.id);
-      
+
       // Update the document with the generated ID
       await docRef.update({'id': docRef.id});
-      
+
       return createdPost;
     } catch (e) {
       throw FirestoreException('Failed to create post: $e');
@@ -66,17 +74,26 @@ class FirestoreService {
       }
 
       final querySnapshot = await query.get();
-      
-      List<Post> posts = querySnapshot.docs
-          .map((doc) => Post.fromJson(doc.data() as Map<String, dynamic>))
-          .toList();
+
+      List<Post> posts =
+          querySnapshot.docs
+              .map((doc) => Post.fromJson(doc.data() as Map<String, dynamic>))
+              .toList();
 
       // Apply search filter if provided (client-side filtering for simplicity)
       if (searchQuery != null && searchQuery.isNotEmpty) {
-        posts = posts.where((post) =>
-          post.title.toLowerCase().contains(searchQuery.toLowerCase()) ||
-          post.description.toLowerCase().contains(searchQuery.toLowerCase())
-        ).toList();
+        posts =
+            posts
+                .where(
+                  (post) =>
+                      post.title.toLowerCase().contains(
+                        searchQuery.toLowerCase(),
+                      ) ||
+                      post.description.toLowerCase().contains(
+                        searchQuery.toLowerCase(),
+                      ),
+                )
+                .toList();
       }
 
       return posts;
@@ -121,7 +138,7 @@ class FirestoreService {
   Future<void> incrementPostViewCount(String id) async {
     try {
       await _postsCollection.doc(id).update({
-        'view_count': FieldValue.increment(1)
+        'view_count': FieldValue.increment(1),
       });
     } catch (e) {
       throw FirestoreException('Failed to increment view count: $e');
@@ -135,10 +152,10 @@ class FirestoreService {
     try {
       final docRef = await _businessesCollection.add(business.toJson());
       final createdBusiness = business.copyWith(id: docRef.id);
-      
+
       // Update the document with the generated ID
       await docRef.update({'id': docRef.id});
-      
+
       return createdBusiness;
     } catch (e) {
       throw FirestoreException('Failed to create business: $e');
@@ -169,33 +186,51 @@ class FirestoreService {
       }
 
       final querySnapshot = await query.get();
-      
-      List<Business> businesses = querySnapshot.docs
-          .map((doc) => Business.fromJson(doc.data() as Map<String, dynamic>))
-          .toList();
+
+      List<Business> businesses =
+          querySnapshot.docs
+              .map(
+                (doc) => Business.fromJson(doc.data() as Map<String, dynamic>),
+              )
+              .toList();
 
       // Apply search filter if provided
       if (searchQuery != null && searchQuery.isNotEmpty) {
-        businesses = businesses.where((business) =>
-          business.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
-          business.description.toLowerCase().contains(searchQuery.toLowerCase()) ||
-          business.services.any((service) => 
-            service.toLowerCase().contains(searchQuery.toLowerCase()))
-        ).toList();
+        businesses =
+            businesses
+                .where(
+                  (business) =>
+                      business.name.toLowerCase().contains(
+                        searchQuery.toLowerCase(),
+                      ) ||
+                      business.description.toLowerCase().contains(
+                        searchQuery.toLowerCase(),
+                      ) ||
+                      business.services.any(
+                        (service) => service.toLowerCase().contains(
+                          searchQuery.toLowerCase(),
+                        ),
+                      ),
+                )
+                .toList();
       }
 
       // Apply location filter if provided (simple distance calculation)
       if (latitude != null && longitude != null && radiusKm != null) {
-        businesses = businesses.where((business) {
-          if (business.latitude == null || business.longitude == null) return false;
-          
-          final distance = _calculateDistance(
-            latitude, longitude, 
-            business.latitude!, business.longitude!
-          );
-          
-          return distance <= radiusKm;
-        }).toList();
+        businesses =
+            businesses.where((business) {
+              if (business.latitude == null || business.longitude == null)
+                return false;
+
+              final distance = _calculateDistance(
+                latitude,
+                longitude,
+                business.latitude!,
+                business.longitude!,
+              );
+
+              return distance <= radiusKm;
+            }).toList();
       }
 
       return businesses;
@@ -243,10 +278,10 @@ class FirestoreService {
     try {
       final docRef = await _eventsCollection.add(event.toJson());
       final createdEvent = event.copyWith(id: docRef.id);
-      
+
       // Update the document with the generated ID
       await docRef.update({'id': docRef.id});
-      
+
       return createdEvent;
     } catch (e) {
       throw FirestoreException('Failed to create event: $e');
@@ -269,15 +304,24 @@ class FirestoreService {
       }
 
       if (upcomingOnly == true) {
-        query = query.where('start_date', isGreaterThanOrEqualTo: DateTime.now().toIso8601String());
+        query = query.where(
+          'start_date',
+          isGreaterThanOrEqualTo: DateTime.now().toIso8601String(),
+        );
       }
 
       if (startDate != null) {
-        query = query.where('start_date', isGreaterThanOrEqualTo: startDate.toIso8601String());
+        query = query.where(
+          'start_date',
+          isGreaterThanOrEqualTo: startDate.toIso8601String(),
+        );
       }
 
       if (endDate != null) {
-        query = query.where('start_date', isLessThanOrEqualTo: endDate.toIso8601String());
+        query = query.where(
+          'start_date',
+          isLessThanOrEqualTo: endDate.toIso8601String(),
+        );
       }
 
       // Order by start date (earliest first)
@@ -288,7 +332,7 @@ class FirestoreService {
       }
 
       final querySnapshot = await query.get();
-      
+
       return querySnapshot.docs
           .map((doc) => Event.fromJson(doc.data() as Map<String, dynamic>))
           .toList();
@@ -329,8 +373,6 @@ class FirestoreService {
     }
   }
 
-
-
   // EMERGENCY ALERTS OPERATIONS
 
   /// Get emergency alerts
@@ -352,7 +394,7 @@ class FirestoreService {
       }
 
       final querySnapshot = await query.get();
-      
+
       return querySnapshot.docs
           .map((doc) => doc.data() as Map<String, dynamic>)
           .toList();
@@ -382,7 +424,7 @@ class FirestoreService {
 
       final docRef = await _emergencyAlertsCollection.add(data);
       await docRef.update({'id': docRef.id});
-      
+
       return docRef.id;
     } catch (e) {
       throw FirestoreException('Failed to create emergency alert: $e');
@@ -392,17 +434,21 @@ class FirestoreService {
   // UTILITY METHODS
 
   /// Calculate distance between two coordinates in kilometers
-  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+  double _calculateDistance(
+    double lat1,
+    double lon1,
+    double lat2,
+    double lon2,
+  ) {
     const double earthRadius = 6371; // Earth's radius in kilometers
-    
+
     final double dLat = _degreesToRadians(lat2 - lat1);
     final double dLon = _degreesToRadians(lon2 - lon1);
-    
-    final double a = 
-        pow(sin(dLat / 2), 2) +
-        cos(lat1) * cos(lat2) * pow(sin(dLon / 2), 2);
+
+    final double a =
+        pow(sin(dLat / 2), 2) + cos(lat1) * cos(lat2) * pow(sin(dLon / 2), 2);
     final double c = 2 * asin(sqrt(a));
-    
+
     return earthRadius * c;
   }
 
@@ -448,8 +494,11 @@ class FirestoreService {
       query = query.limit(limit);
     }
 
-    return query.snapshots().map((snapshot) =>
-      snapshot.docs.map((doc) => Post.fromJson(doc.data() as Map<String, dynamic>)).toList()
+    return query.snapshots().map(
+      (snapshot) =>
+          snapshot.docs
+              .map((doc) => Post.fromJson(doc.data() as Map<String, dynamic>))
+              .toList(),
     );
   }
 
@@ -466,7 +515,10 @@ class FirestoreService {
     }
 
     if (upcomingOnly == true) {
-      query = query.where('start_date', isGreaterThanOrEqualTo: DateTime.now().toIso8601String());
+      query = query.where(
+        'start_date',
+        isGreaterThanOrEqualTo: DateTime.now().toIso8601String(),
+      );
     }
 
     query = query.orderBy('start_date');
@@ -475,16 +527,16 @@ class FirestoreService {
       query = query.limit(limit);
     }
 
-    return query.snapshots().map((snapshot) =>
-      snapshot.docs.map((doc) => Event.fromJson(doc.data() as Map<String, dynamic>)).toList()
+    return query.snapshots().map(
+      (snapshot) =>
+          snapshot.docs
+              .map((doc) => Event.fromJson(doc.data() as Map<String, dynamic>))
+              .toList(),
     );
   }
 
   /// Listen to businesses changes
-  Stream<List<Business>> listenToBusinesses({
-    String? category,
-    int? limit,
-  }) {
+  Stream<List<Business>> listenToBusinesses({String? category, int? limit}) {
     Query query = _businessesCollection;
 
     if (category != null && category.isNotEmpty) {
@@ -497,8 +549,13 @@ class FirestoreService {
       query = query.limit(limit);
     }
 
-    return query.snapshots().map((snapshot) =>
-      snapshot.docs.map((doc) => Business.fromJson(doc.data() as Map<String, dynamic>)).toList()
+    return query.snapshots().map(
+      (snapshot) =>
+          snapshot.docs
+              .map(
+                (doc) => Business.fromJson(doc.data() as Map<String, dynamic>),
+              )
+              .toList(),
     );
   }
 }
@@ -512,7 +569,7 @@ class FirestoreException implements Exception {
   String toString() => 'FirestoreException: $message';
 }
 
-  // Extension to add copyWith method to Business model if not present
+// Extension to add copyWith method to Business model if not present
 extension BusinessCopyWith on Business {
   Business copyWith({
     String? id,
@@ -563,14 +620,18 @@ extension FirestoreServiceExtensions on FirestoreService {
   // SERVICE REQUEST CRUD OPERATIONS
 
   /// Create a new service request
-  Future<ServiceRequest> createServiceRequest(ServiceRequest serviceRequest) async {
+  Future<ServiceRequest> createServiceRequest(
+    ServiceRequest serviceRequest,
+  ) async {
     try {
-      final docRef = await _serviceRequestsCollection.add(serviceRequest.toJson());
+      final docRef = await _serviceRequestsCollection.add(
+        serviceRequest.toJson(),
+      );
       final createdRequest = serviceRequest.copyWith(id: docRef.id);
-      
+
       // Update the document with the generated ID
       await docRef.update({'id': docRef.id});
-      
+
       return createdRequest;
     } catch (e) {
       throw FirestoreException('Failed to create service request: $e');
@@ -594,11 +655,17 @@ extension FirestoreServiceExtensions on FirestoreService {
       }
 
       if (status != null) {
-        query = query.where('status', isEqualTo: status.toString().split('.').last);
+        query = query.where(
+          'status',
+          isEqualTo: status.toString().split('.').last,
+        );
       }
 
       if (priority != null) {
-        query = query.where('priority', isEqualTo: priority.toString().split('.').last);
+        query = query.where(
+          'priority',
+          isEqualTo: priority.toString().split('.').last,
+        );
       }
 
       if (isUrgent != null) {
@@ -612,19 +679,29 @@ extension FirestoreServiceExtensions on FirestoreService {
       }
 
       final snapshot = await query.get();
-      List<ServiceRequest> requests = snapshot.docs
-          .map((doc) => ServiceRequest.fromJson(doc.data() as Map<String, dynamic>))
-          .toList();
+      List<ServiceRequest> requests =
+          snapshot.docs
+              .map(
+                (doc) =>
+                    ServiceRequest.fromJson(doc.data() as Map<String, dynamic>),
+              )
+              .toList();
 
       // Apply search filter if provided
       if (searchQuery != null && searchQuery.isNotEmpty) {
         final searchLower = searchQuery.toLowerCase();
-        requests = requests.where((request) =>
-          request.title.toLowerCase().contains(searchLower) ||
-          request.description.toLowerCase().contains(searchLower) ||
-          request.category.toLowerCase().contains(searchLower) ||
-          request.tags.any((tag) => tag.toLowerCase().contains(searchLower))
-        ).toList();
+        requests =
+            requests
+                .where(
+                  (request) =>
+                      request.title.toLowerCase().contains(searchLower) ||
+                      request.description.toLowerCase().contains(searchLower) ||
+                      request.category.toLowerCase().contains(searchLower) ||
+                      request.tags.any(
+                        (tag) => tag.toLowerCase().contains(searchLower),
+                      ),
+                )
+                .toList();
       }
 
       return requests;
@@ -647,11 +724,14 @@ extension FirestoreServiceExtensions on FirestoreService {
   }
 
   /// Update service request
-  Future<ServiceRequest> updateServiceRequest(String id, Map<String, dynamic> updates) async {
+  Future<ServiceRequest> updateServiceRequest(
+    String id,
+    Map<String, dynamic> updates,
+  ) async {
     try {
       updates['updated_at'] = DateTime.now().toIso8601String();
       await _serviceRequestsCollection.doc(id).update(updates);
-      
+
       final updatedDoc = await _serviceRequestsCollection.doc(id).get();
       return ServiceRequest.fromJson(updatedDoc.data() as Map<String, dynamic>);
     } catch (e) {
@@ -671,13 +751,17 @@ extension FirestoreServiceExtensions on FirestoreService {
   /// Get service requests by user
   Future<List<ServiceRequest>> getUserServiceRequests(String userId) async {
     try {
-      final snapshot = await _serviceRequestsCollection
-          .where('requester_id', isEqualTo: userId)
-          .orderBy('created_at', descending: true)
-          .get();
+      final snapshot =
+          await _serviceRequestsCollection
+              .where('requester_id', isEqualTo: userId)
+              .orderBy('created_at', descending: true)
+              .get();
 
       return snapshot.docs
-          .map((doc) => ServiceRequest.fromJson(doc.data() as Map<String, dynamic>))
+          .map(
+            (doc) =>
+                ServiceRequest.fromJson(doc.data() as Map<String, dynamic>),
+          )
           .toList();
     } catch (e) {
       throw FirestoreException('Failed to get user service requests: $e');
@@ -685,7 +769,11 @@ extension FirestoreServiceExtensions on FirestoreService {
   }
 
   /// Assign service request to user
-  Future<ServiceRequest> assignServiceRequest(String requestId, String assigneeId, String assigneeName) async {
+  Future<ServiceRequest> assignServiceRequest(
+    String requestId,
+    String assigneeId,
+    String assigneeName,
+  ) async {
     try {
       final updates = {
         'assigned_to': assigneeId,
@@ -701,7 +789,10 @@ extension FirestoreServiceExtensions on FirestoreService {
   }
 
   /// Resolve service request
-  Future<ServiceRequest> resolveServiceRequest(String requestId, String resolution) async {
+  Future<ServiceRequest> resolveServiceRequest(
+    String requestId,
+    String resolution,
+  ) async {
     try {
       final updates = {
         'status': ServiceRequestStatus.resolved.toString().split('.').last,
@@ -717,14 +808,19 @@ extension FirestoreServiceExtensions on FirestoreService {
   }
 
   /// Upvote service request
-  Future<ServiceRequest> upvoteServiceRequest(String requestId, String userId) async {
+  Future<ServiceRequest> upvoteServiceRequest(
+    String requestId,
+    String userId,
+  ) async {
     try {
       final doc = await _serviceRequestsCollection.doc(requestId).get();
       if (!doc.exists) {
         throw FirestoreException('Service request not found');
       }
 
-      final request = ServiceRequest.fromJson(doc.data() as Map<String, dynamic>);
+      final request = ServiceRequest.fromJson(
+        doc.data() as Map<String, dynamic>,
+      );
       final upvotedBy = List<String>.from(request.upvotedBy);
 
       if (upvotedBy.contains(userId)) {
@@ -751,15 +847,26 @@ extension FirestoreServiceExtensions on FirestoreService {
   Future<Map<String, int>> getServiceRequestStats() async {
     try {
       final snapshot = await _serviceRequestsCollection.get();
-      final requests = snapshot.docs
-          .map((doc) => ServiceRequest.fromJson(doc.data() as Map<String, dynamic>))
-          .toList();
+      final requests =
+          snapshot.docs
+              .map(
+                (doc) =>
+                    ServiceRequest.fromJson(doc.data() as Map<String, dynamic>),
+              )
+              .toList();
 
       return {
         'total_requests': requests.length,
-        'open_requests': requests.where((r) => r.status == ServiceRequestStatus.open).length,
-        'in_progress_requests': requests.where((r) => r.status == ServiceRequestStatus.inProgress).length,
-        'resolved_requests': requests.where((r) => r.status == ServiceRequestStatus.resolved).length,
+        'open_requests':
+            requests.where((r) => r.status == ServiceRequestStatus.open).length,
+        'in_progress_requests':
+            requests
+                .where((r) => r.status == ServiceRequestStatus.inProgress)
+                .length,
+        'resolved_requests':
+            requests
+                .where((r) => r.status == ServiceRequestStatus.resolved)
+                .length,
         'urgent_requests': requests.where((r) => r.isUrgent).length,
         'overdue_requests': requests.where((r) => r.isOverdue).length,
       };
@@ -781,14 +888,19 @@ extension FirestoreServiceExtensions on FirestoreService {
 
   /// Get user profile by UID
   Future<UserModel?> getUserProfile(String uid) async {
+    print('Fetching user profile for $uid');
     try {
       final doc = await _usersCollection.doc(uid).get();
+      print('Document exists: ${doc.exists}');
       if (doc.exists) {
+        print('User data: ${doc.data()}');
         return UserModel.fromJson(doc.data() as Map<String, dynamic>);
       }
+      print('No user document found for $uid');
       return null;
     } catch (e) {
-      throw FirestoreException('Failed to get user profile: $e');
+      print('Error fetching user profile: $e');
+      return null;
     }
   }
 
@@ -845,16 +957,24 @@ extension FirestoreServiceExtensions on FirestoreService {
   /// Search users by display name or email
   Future<List<UserModel>> searchUsers(String searchQuery) async {
     try {
-      final snapshot = await _usersCollection
-          .where('is_active', isEqualTo: true)
-          .get();
+      final snapshot =
+          await _usersCollection.where('is_active', isEqualTo: true).get();
 
-      final users = snapshot.docs
-          .map((doc) => UserModel.fromJson(doc.data() as Map<String, dynamic>))
-          .where((user) =>
-              user.displayName.toLowerCase().contains(searchQuery.toLowerCase()) ||
-              user.email.toLowerCase().contains(searchQuery.toLowerCase()))
-          .toList();
+      final users =
+          snapshot.docs
+              .map(
+                (doc) => UserModel.fromJson(doc.data() as Map<String, dynamic>),
+              )
+              .where(
+                (user) =>
+                    user.displayName.toLowerCase().contains(
+                      searchQuery.toLowerCase(),
+                    ) ||
+                    user.email.toLowerCase().contains(
+                      searchQuery.toLowerCase(),
+                    ),
+              )
+              .toList();
 
       return users;
     } catch (e) {
@@ -866,16 +986,20 @@ extension FirestoreServiceExtensions on FirestoreService {
   Future<Map<String, int>> getUserStats() async {
     try {
       final snapshot = await _usersCollection.get();
-      final users = snapshot.docs
-          .map((doc) => UserModel.fromJson(doc.data() as Map<String, dynamic>))
-          .toList();
+      final users =
+          snapshot.docs
+              .map(
+                (doc) => UserModel.fromJson(doc.data() as Map<String, dynamic>),
+              )
+              .toList();
 
       return {
         'total_users': users.length,
         'active_users': users.where((u) => u.isActive).length,
         'verified_users': users.where((u) => u.isEmailVerified).length,
         'residents': users.where((u) => u.role == UserRole.resident).length,
-        'business_owners': users.where((u) => u.role == UserRole.businessOwner).length,
+        'business_owners':
+            users.where((u) => u.role == UserRole.businessOwner).length,
         'admins': users.where((u) => u.role == UserRole.admin).length,
         'moderators': users.where((u) => u.role == UserRole.moderator).length,
       };

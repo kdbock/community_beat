@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../index.dart';
+import '../../providers/app_state_provider.dart' as app;
+import '../../providers/news_events_provider.dart' as news;
+import '../../providers/business_directory_provider.dart' as business;
+import '../../providers/bulletin_board_provider.dart' as bulletin;
+import '../../models/post_item.dart' as models;
+import '../../models/business_item.dart' as models;
+import '../../models/news_item.dart' as news_model;
 
 /// Example showing how to use the global widgets together
 class GlobalWidgetsExample extends StatefulWidget {
@@ -16,7 +23,7 @@ class _GlobalWidgetsExampleState extends State<GlobalWidgetsExample> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AppStateProvider>(
+    return Consumer<app.AppStateProvider>(
       builder: (context, appState, child) {
         return ScaffoldWrapper(
           appBar: AppBar(
@@ -82,7 +89,7 @@ class NewsEventsExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<NewsEventsProvider>(
+    return Consumer<news.NewsEventsProvider>(
       builder: (context, provider, child) {
         return Column(
           children: [
@@ -97,15 +104,20 @@ class NewsEventsExample extends StatelessWidget {
             // News List
             Expanded(
               child: NewsList(
-                newsItems: provider.newsItems.map((item) => NewsItem(
-                  id: item.id,
-                  title: item.title,
-                  description: item.description,
-                  imageUrl: item.imageUrl,
-                  publishedAt: item.publishedAt,
-                  isEvent: item.isEvent,
-                  eventDate: item.eventDate,
-                )).toList(),
+                newsItems:
+                    provider.newsItems
+                        .map(
+                          (item) => NewsItem(
+                            id: item.id,
+                            title: item.title,
+                            description: item.description,
+                            imageUrl: item.imageUrl,
+                            publishedAt: item.publishedAt,
+                            isEvent: item.isEvent,
+                            eventDate: item.eventDate,
+                          ),
+                        )
+                        .toList(),
                 isLoading: provider.isLoading,
                 onRefresh: () => provider.loadNews(),
               ),
@@ -123,32 +135,38 @@ class BusinessDirectoryExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<BusinessDirectoryProvider>(
+    return Consumer<business.BusinessDirectoryProvider>(
       builder: (context, provider, child) {
         return Column(
           children: [
             // Search and filters
             BusinessSearch(
               onSearchChanged: (query) => provider.setSearchQuery(query),
-              onCategoryChanged: (category) => provider.setSelectedCategory(category),
+              onCategoryChanged:
+                  (category) => provider.setSelectedCategory(category),
               categories: provider.categories,
               selectedCategory: provider.selectedCategory,
             ),
             // Business grid
             Expanded(
               child: BusinessGrid(
-                businesses: provider.businesses.map((item) => BusinessItem(
-                  id: item.id,
-                  name: item.name,
-                  description: item.description,
-                  imageUrl: item.imageUrl,
-                  phone: item.phone,
-                  email: item.email,
-                  category: item.category,
-                  rating: item.rating,
-                  hasDeals: item.hasDeals,
-                  isNew: item.isNew,
-                )).toList(),
+                businesses:
+                    provider.businesses
+                        .map(
+                          (item) => models.BusinessItem(
+                            id: item.id,
+                            name: item.name,
+                            description: item.description,
+                            imageUrl: item.imageUrl,
+                            phone: item.phone,
+                            email: item.email,
+                            category: item.category,
+                            rating: item.rating,
+                            hasDeals: item.hasDeals,
+                            isNew: item.isNew,
+                          ),
+                        )
+                        .toList(),
                 isLoading: provider.isLoading,
                 onRefresh: () => provider.loadBusinesses(),
               ),
@@ -166,7 +184,7 @@ class BulletinBoardExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<BulletinBoardProvider>(
+    return Consumer<bulletin.BulletinBoardProvider>(
       builder: (context, provider, child) {
         return Column(
           children: [
@@ -174,25 +192,27 @@ class BulletinBoardExample extends StatelessWidget {
             CategoryChips(
               categories: provider.categories,
               selectedCategory: provider.selectedCategory,
-              onCategorySelected: (category) => provider.setSelectedCategory(category),
+              onCategorySelected:
+                  (category) => provider.setSelectedCategory(category),
             ),
             // Posts list
             Expanded(
-              child: CustomListView<PostItem>(
+              child: CustomListView<models.PostItem>(
                 items: provider.posts,
-                itemBuilder: (context, post, index) => PostCard(
-                  title: post.title,
-                  description: post.description,
-                  category: post.category,
-                  authorName: post.authorName,
-                  createdAt: post.createdAt,
-                  imageUrls: post.imageUrls,
-                  onEdit: () {
-                    // Navigate to edit form
-                  },
-                  onDelete: () => provider.deletePost(post.id),
-                  isOwner: true, // Check if current user is owner
-                ),
+                itemBuilder:
+                    (context, post, index) => PostCard(
+                      title: post.title,
+                      description: post.description,
+                      category: post.category,
+                      authorName: post.authorName,
+                      createdAt: post.createdAt,
+                      imageUrls: post.imageUrls,
+                      onEdit: () {
+                        // Navigate to edit form
+                      },
+                      onDelete: () => provider.deletePost(post.id),
+                      isOwner: true, // Check if current user is owner
+                    ),
                 isLoading: provider.isLoading,
                 onRefresh: () => provider.loadPosts(),
               ),
@@ -242,17 +262,18 @@ class PublicServicesExample extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ServiceRequestForm(
-                  serviceTitle: service.title,
-                  onSubmit: (data) {
-                    // Handle form submission
-                    Navigator.pop(context);
-                    CustomSnackBar.showSuccess(
-                      context,
-                      'Service request submitted successfully!',
-                    );
-                  },
-                ),
+                builder:
+                    (context) => ServiceRequestForm(
+                      serviceTitle: service.title,
+                      onSubmit: (data) {
+                        // Handle form submission
+                        Navigator.pop(context);
+                        CustomSnackBar.showSuccess(
+                          context,
+                          'Service request submitted successfully!',
+                        );
+                      },
+                    ),
               ),
             );
           },
@@ -276,15 +297,15 @@ class MapExample extends StatelessWidget {
             // Add sample markers
           },
           onMapTapped: (position) {
-            print('Map tapped at: $position');
+            debugPrint('Map tapped at: $position');
           },
         ),
         MapSearchBar(
           onSearch: (query) {
-            print('Searching for: $query');
+            debugPrint('Searching for: $query');
           },
           onCurrentLocation: () {
-            print('Getting current location');
+            debugPrint('Getting current location');
           },
         ),
         const MapControls(),

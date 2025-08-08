@@ -7,7 +7,7 @@ import '../services/auth_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthService _authService = AuthService();
-  
+
   UserModel? _currentUser;
   bool _isLoading = false;
   String? _errorMessage;
@@ -23,24 +23,63 @@ class AuthProvider extends ChangeNotifier {
 
   /// Initialize auth provider
   Future<void> initialize() async {
-    if (_isInitialized) return;
+    debugPrint('[AuthProvider] initialize() called');
+    if (_isInitialized) {
+      debugPrint('[AuthProvider] Already initialized');
+      return;
+    }
 
     _setLoading(true);
     try {
-      // Listen to auth state changes
-      _authService.authStateChanges.listen(_onAuthStateChanged);
-      
-      // Get current user if signed in
-      if (_authService.isSignedIn) {
-        _currentUser = await _authService.getCurrentUserProfile();
-      }
-      
+      debugPrint('[AuthProvider] Waiting for first auth state event...');
+      final user = await _authService.authStateChanges.first;
+      debugPrint(
+        '[AuthProvider] First auth state event received: user=${user?.uid}',
+      );
+      await _onAuthStateChanged(user);
+
       _isInitialized = true;
+      debugPrint('[AuthProvider] Initialization complete');
       _clearError();
+
+      // Continue listening for future auth state changes
+      _authService.authStateChanges.listen((user) {
+        debugPrint('[AuthProvider] Auth state changed: user=${user?.uid}');
+        _onAuthStateChanged(user);
+      });
     } catch (e) {
+      debugPrint('[AuthProvider] Error during initialize: $e');
       _setError('Failed to initialize authentication: $e');
     } finally {
       _setLoading(false);
+      debugPrint('[AuthProvider] initialize() finished');
+    }
+  }
+
+  Future<void> _onAuthStateChanged(User? user) async {
+    debugPrint('[AuthProvider] _onAuthStateChanged called: user=${user?.uid}');
+    if (user == null) {
+      _currentUser = null;
+      notifyListeners();
+      debugPrint('[AuthProvider] No user signed in');
+      return;
+    }
+    try {
+      debugPrint('[AuthProvider] Fetching user profile for ${user.uid}');
+      final profile = await _authService.firestoreService.getUserProfile(
+        user.uid,
+      );
+      if (profile != null) {
+        debugPrint('[AuthProvider] User profile loaded: ${profile.toJson()}');
+        _currentUser = profile;
+      } else {
+        debugPrint('[AuthProvider] No user profile found for ${user.uid}');
+        _currentUser = null;
+      }
+      notifyListeners();
+    } catch (e) {
+      debugPrint('[AuthProvider] Error loading user profile: $e');
+      _setError('Failed to load user profile: $e');
     }
   }
 
@@ -79,10 +118,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// Sign in with email and password
-  Future<bool> signIn({
-    required String email,
-    required String password,
-  }) async {
+  Future<bool> signIn({required String email, required String password}) async {
     _setLoading(true);
     try {
       final user = await _authService.signInWithEmailAndPassword(
@@ -226,10 +262,10 @@ class AuthProvider extends ChangeNotifier {
     try {
       // Re-authenticate first
       await _authService.reauthenticateWithPassword(currentPassword);
-      
+
       // Update password
       await _authService.updatePassword(newPassword);
-      
+
       _clearError();
       return true;
     } on AuthException catch (e) {
@@ -251,10 +287,10 @@ class AuthProvider extends ChangeNotifier {
     try {
       // Re-authenticate first
       await _authService.reauthenticateWithPassword(password);
-      
+
       // Delete account
       await _authService.deleteAccount();
-      
+
       _currentUser = null;
       _clearError();
       notifyListeners();
@@ -303,22 +339,6 @@ class AuthProvider extends ChangeNotifier {
 
   // Private methods
 
-  void _onAuthStateChanged(User? user) async {
-    if (user != null) {
-      // User signed in
-      try {
-        _currentUser = await _authService.getCurrentUserProfile();
-      } catch (e) {
-        debugPrint('Failed to get user profile: $e');
-        _currentUser = null;
-      }
-    } else {
-      // User signed out
-      _currentUser = null;
-    }
-    notifyListeners();
-  }
-
   void _setLoading(bool loading) {
     _isLoading = loading;
     notifyListeners();
@@ -352,6 +372,4 @@ class AuthProvider extends ChangeNotifier {
 
   /// Check if user can create business listings
   bool get canCreateBusiness => _currentUser?.canCreateBusiness ?? false;
-
-
 }

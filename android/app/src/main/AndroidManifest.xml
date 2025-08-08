@@ -1,4 +1,6 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <uses-sdk android:minSdkVersion="23" tools:overrideLibrary="io.flutter.plugins.firebase.firestore,io.flutter.plugins.firebase.auth,io.flutter.plugins.firebase.core,io.flutter.plugins.firebase.messaging,io.flutter.plugins.firebase.storage" />
     <!-- Permissions for Firebase Messaging -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -44,7 +46,7 @@
         <!-- Google Maps API Key -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyAAeuBv_lPWQFTaxSwERHJ-2MsnCURwefY" />
+            android:value="@string/google_maps_api_key" />
             
         <!-- Firebase Messaging Service -->
         <service

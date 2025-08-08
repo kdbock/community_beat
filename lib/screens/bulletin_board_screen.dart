@@ -2,9 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../widgets/index.dart';
+import '../widgets/index.dart' hide BulletinBoardProvider;
 import '../models/post.dart';
-
+import '../models/post_item.dart';
+import '../providers/bulletin_board_provider.dart';
 
 class BulletinBoardScreen extends StatefulWidget {
   const BulletinBoardScreen({super.key});
@@ -51,9 +52,7 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
           body: Column(
             children: [
               _buildCategoryChips(provider),
-              Expanded(
-                child: _buildPostsList(provider),
-              ),
+              Expanded(child: _buildPostsList(provider)),
             ],
           ),
           floatingActionButton: FloatingActionButton(
@@ -103,40 +102,46 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
   }
 
   Widget _buildPostsList(BulletinBoardProvider provider) {
-    final posts = _getMockPosts().map((post) => PostItem(
-      id: post.id,
-      title: post.title,
-      description: post.description,
-      category: post.category,
-      authorName: post.authorName,
-      createdAt: post.createdAt,
-      imageUrls: post.imageUrls,
-    )).toList();
+    final posts =
+        _getMockPosts()
+            .map(
+              (post) => PostItem(
+                id: post.id,
+                title: post.title,
+                description: post.description,
+                category: post.category,
+                authorName: post.authorName,
+                createdAt: post.createdAt,
+                imageUrls: post.imageUrls,
+              ),
+            )
+            .toList();
 
     return CustomListView<PostItem>(
       items: posts,
-      itemBuilder: (context, post, index) => PostCard(
-        title: post.title,
-        description: post.description,
-        category: post.category,
-        authorName: post.authorName,
-        createdAt: post.createdAt,
-        imageUrls: post.imageUrls,
-        isOwner: index % 3 == 0, // Mock ownership
-        onTap: () {
-          CustomSnackBar.showInfo(context, 'Opening ${post.title}...');
-        },
-        onEdit: () {
-          CustomSnackBar.showInfo(context, 'Edit feature coming soon!');
-        },
-        onDelete: () {
-          provider.deletePost(post.id);
-          CustomSnackBar.showSuccess(context, 'Post deleted successfully');
-        },
-        onReport: () {
-          CustomSnackBar.showWarning(context, 'Post reported for review');
-        },
-      ),
+      itemBuilder:
+          (context, post, index) => PostCard(
+            title: post.title,
+            description: post.description,
+            category: post.category,
+            authorName: post.authorName,
+            createdAt: post.createdAt,
+            imageUrls: post.imageUrls,
+            isOwner: index % 3 == 0, // Mock ownership
+            onTap: () {
+              CustomSnackBar.showInfo(context, 'Opening ${post.title}...');
+            },
+            onEdit: () {
+              CustomSnackBar.showInfo(context, 'Edit feature coming soon!');
+            },
+            onDelete: () {
+              provider.deletePost(post.id);
+              CustomSnackBar.showSuccess(context, 'Post deleted successfully');
+            },
+            onReport: () {
+              CustomSnackBar.showWarning(context, 'Post reported for review');
+            },
+          ),
       isLoading: provider.isLoading,
       onRefresh: () => provider.loadPosts(),
     );
@@ -146,23 +151,27 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PostForm(
-          onSubmit: (formData) {
-            // Create new post
-            final newPost = PostItem(
-              id: DateTime.now().millisecondsSinceEpoch.toString(),
-              title: formData.title,
-              description: formData.description,
-              category: formData.category,
-              authorName: 'Current User', // Replace with actual user
-              createdAt: DateTime.now(),
-            );
-            
-            context.read<BulletinBoardProvider>().createPost(newPost);
-            Navigator.pop(context);
-            CustomSnackBar.showSuccess(context, 'Post created successfully!');
-          },
-        ),
+        builder:
+            (context) => PostForm(
+              onSubmit: (formData) {
+                // Create new post
+                final newPost = PostItem(
+                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                  title: formData.title,
+                  description: formData.description,
+                  category: formData.category,
+                  authorName: 'Current User', // Replace with actual user
+                  createdAt: DateTime.now(),
+                );
+
+                context.read<BulletinBoardProvider>().createPost(newPost);
+                Navigator.pop(context);
+                CustomSnackBar.showSuccess(
+                  context,
+                  'Post created successfully!',
+                );
+              },
+            ),
       ),
     );
   }
@@ -170,40 +179,43 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
   void _showFilterDialog(BulletinBoardProvider provider) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Filter Posts'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Select category:'),
-            const SizedBox(height: 16),
-            ...provider.categories.map((category) => RadioListTile<String?>(
-              title: Text(category),
-              value: category,
-              groupValue: provider.selectedCategory,
-              onChanged: (value) {
-                provider.setSelectedCategory(value);
-                Navigator.pop(context);
-              },
-            )),
-            RadioListTile<String?>(
-              title: const Text('All Categories'),
-              value: null,
-              groupValue: provider.selectedCategory,
-              onChanged: (value) {
-                provider.setSelectedCategory(null);
-                Navigator.pop(context);
-              },
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Filter Posts'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('Select category:'),
+                const SizedBox(height: 16),
+                ...provider.categories.map(
+                  (category) => RadioListTile<String?>(
+                    title: Text(category),
+                    value: category,
+                    groupValue: provider.selectedCategory,
+                    onChanged: (value) {
+                      provider.setSelectedCategory(value);
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+                RadioListTile<String?>(
+                  title: const Text('All Categories'),
+                  value: null,
+                  groupValue: provider.selectedCategory,
+                  onChanged: (value) {
+                    provider.setSelectedCategory(null);
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
             ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Close'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -212,7 +224,8 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
       Post(
         id: '1',
         title: 'iPhone 12 for Sale',
-        description: 'Excellent condition iPhone 12, 128GB, unlocked. Includes original box and charger.',
+        description:
+            'Excellent condition iPhone 12, 128GB, unlocked. Includes original box and charger.',
         type: PostType.buySell,
         category: 'Buy/Sell',
         authorName: 'Sarah Johnson',
@@ -226,7 +239,8 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
       Post(
         id: '2',
         title: 'Part-time Barista Wanted',
-        description: 'Local coffee shop seeking friendly barista for weekend shifts. Experience preferred but will train.',
+        description:
+            'Local coffee shop seeking friendly barista for weekend shifts. Experience preferred but will train.',
         type: PostType.job,
         category: 'Jobs',
         authorName: 'Mike\'s Coffee Shop',
@@ -239,7 +253,8 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
       Post(
         id: '3',
         title: 'Lost Cat - Fluffy',
-        description: 'Orange tabby cat, very friendly. Last seen near Central Park. Please call if found!',
+        description:
+            'Orange tabby cat, very friendly. Last seen near Central Park. Please call if found!',
         type: PostType.lostFound,
         category: 'Lost & Found',
         authorName: 'Emma Wilson',
@@ -252,7 +267,8 @@ class _BulletinBoardScreenState extends State<BulletinBoardScreen> {
       Post(
         id: '4',
         title: 'Volunteers Needed for Beach Cleanup',
-        description: 'Join us this Saturday for our monthly beach cleanup event. Supplies provided, just bring yourself!',
+        description:
+            'Join us this Saturday for our monthly beach cleanup event. Supplies provided, just bring yourself!',
         type: PostType.volunteer,
         category: 'Volunteer',
         authorName: 'Green Earth Society',

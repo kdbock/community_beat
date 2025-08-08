@@ -12,7 +12,12 @@
           "package_name": "com.wordnerd.communitybeat"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "614152838105-08hb3bjest2o3kaodp9q3mo1860ccjcv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAN5SuYNkD3gK3tfHBRaAUSjfk2OWYuJ7E"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "614152838105-08hb3bjest2o3kaodp9q3mo1860ccjcv.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "614152838105-il6gi05davbam0k85e7o10e7n3lbds2i.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.wordnerd.communitybeat"
+              }
+            }
+          ]
         }
       }
     }

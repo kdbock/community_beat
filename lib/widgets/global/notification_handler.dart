@@ -3,7 +3,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 
 /// Firebase messaging notification handler
 class NotificationHandler {
-  static final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  static final FirebaseMessaging _firebaseMessaging =
+      FirebaseMessaging.instance;
   static BuildContext? _context;
 
   static Future<void> initialize(BuildContext context) async {
@@ -21,16 +22,17 @@ class NotificationHandler {
     );
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      print('User granted permission');
-    } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
-      print('User granted provisional permission');
+      debugPrint('User granted permission');
+    } else if (settings.authorizationStatus ==
+        AuthorizationStatus.provisional) {
+      debugPrint('User granted provisional permission');
     } else {
-      print('User declined or has not accepted permission');
+      debugPrint('User declined or has not accepted permission');
     }
 
     // Get the token
     String? token = await _firebaseMessaging.getToken();
-    print('FCM Token: $token');
+    debugPrint('FCM Token: $token');
 
     // Handle foreground messages
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
@@ -39,7 +41,8 @@ class NotificationHandler {
     FirebaseMessaging.onMessageOpenedApp.listen(_handleBackgroundMessage);
 
     // Handle terminated app messages
-    RemoteMessage? initialMessage = await _firebaseMessaging.getInitialMessage();
+    RemoteMessage? initialMessage =
+        await _firebaseMessaging.getInitialMessage();
     if (initialMessage != null) {
       _handleBackgroundMessage(initialMessage);
     }
@@ -53,35 +56,44 @@ class NotificationHandler {
 
   static void _handleBackgroundMessage(RemoteMessage message) {
     // Handle navigation based on message data
-    print('Background message: ${message.data}');
+    debugPrint('Background message: ${message.data}');
     // Navigate to specific screen based on message type
   }
 
-  static void _showNotificationDialog(BuildContext context, RemoteMessage message) {
+  static void _showNotificationDialog(
+    BuildContext context,
+    RemoteMessage message,
+  ) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(message.notification?.title ?? 'Notification'),
-        content: Text(message.notification?.body ?? 'You have a new notification'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Dismiss'),
-          ),
-          if (message.data.isNotEmpty)
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _handleNotificationAction(context, message.data);
-              },
-              child: const Text('View'),
+      builder:
+          (context) => AlertDialog(
+            title: Text(message.notification?.title ?? 'Notification'),
+            content: Text(
+              message.notification?.body ?? 'You have a new notification',
             ),
-        ],
-      ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Dismiss'),
+              ),
+              if (message.data.isNotEmpty)
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _handleNotificationAction(context, message.data);
+                  },
+                  child: const Text('View'),
+                ),
+            ],
+          ),
     );
   }
 
-  static void _handleNotificationAction(BuildContext context, Map<String, dynamic> data) {
+  static void _handleNotificationAction(
+    BuildContext context,
+    Map<String, dynamic> data,
+  ) {
     // Handle different notification types
     String? type = data['type'];
     switch (type) {
@@ -149,20 +161,21 @@ class InAppNotification extends StatefulWidget {
     late OverlayEntry overlayEntry;
 
     overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        top: MediaQuery.of(context).padding.top + 10,
-        left: 16,
-        right: 16,
-        child: InAppNotification(
-          title: title,
-          message: message,
-          icon: icon,
-          backgroundColor: backgroundColor,
-          duration: duration,
-          onTap: onTap,
-          onDismiss: () => overlayEntry.remove(),
-        ),
-      ),
+      builder:
+          (context) => Positioned(
+            top: MediaQuery.of(context).padding.top + 10,
+            left: 16,
+            right: 16,
+            child: InAppNotification(
+              title: title,
+              message: message,
+              icon: icon,
+              backgroundColor: backgroundColor,
+              duration: duration,
+              onTap: onTap,
+              onDismiss: () => overlayEntry.remove(),
+            ),
+          ),
     );
 
     overlay.insert(overlayEntry);
@@ -191,10 +204,9 @@ class _InAppNotificationState extends State<InAppNotification>
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, -1),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOut,
-    ));
+    ).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
+    );
 
     _animationController.forward();
   }
@@ -228,11 +240,7 @@ class _InAppNotificationState extends State<InAppNotification>
               child: Row(
                 children: [
                   if (widget.icon != null) ...[
-                    Icon(
-                      widget.icon,
-                      color: Colors.white,
-                      size: 24,
-                    ),
+                    Icon(widget.icon, color: Colors.white, size: 24),
                     const SizedBox(width: 12),
                   ],
                   Expanded(

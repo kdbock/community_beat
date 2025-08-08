@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'business_card.dart';
+import '../../models/business_item.dart';
 
 /// Grid view for displaying business cards
 class BusinessGrid extends StatelessWidget {
@@ -19,9 +20,7 @@ class BusinessGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLoading && businesses.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (businesses.isEmpty) {
@@ -29,24 +28,20 @@ class BusinessGrid extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.business,
-              size: 64,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.business, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
               'No businesses found',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
             ),
             const SizedBox(height: 8),
             Text(
               'Try adjusting your search or filters',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[500],
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
             ),
           ],
         ),
@@ -99,8 +94,8 @@ class BusinessGrid extends StatelessWidget {
 }
 
 /// Alternative list view for businesses
-class BusinessList extends StatelessWidget {
-  final List<BusinessItem> businesses;
+class BusinessList<T extends BusinessItem> extends StatelessWidget {
+  final List<T> businesses;
   final bool isLoading;
   final VoidCallback? onRefresh;
   final ScrollController? scrollController;
@@ -116,9 +111,7 @@ class BusinessList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLoading && businesses.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (businesses.isEmpty) {
@@ -126,17 +119,13 @@ class BusinessList extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.business,
-              size: 64,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.business, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
               'No businesses found',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
             ),
           ],
         ),
@@ -182,35 +171,4 @@ class BusinessList extends StatelessWidget {
 
     return listView;
   }
-}
-
-/// Data model for business items
-class BusinessItem {
-  final String id;
-  final String name;
-  final String description;
-  final String? imageUrl;
-  final String? phone;
-  final String? email;
-  final String? website;
-  final String category;
-  final double? rating;
-  final bool hasDeals;
-  final bool isNew;
-  final VoidCallback? onTap;
-
-  BusinessItem({
-    required this.id,
-    required this.name,
-    required this.description,
-    this.imageUrl,
-    this.phone,
-    this.email,
-    this.website,
-    required this.category,
-    this.rating,
-    this.hasDeals = false,
-    this.isNew = false,
-    this.onTap,
-  });
 }

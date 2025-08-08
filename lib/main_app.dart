@@ -8,17 +8,49 @@ import 'screens/public_services_screen.dart';
 import 'screens/map_screen.dart';
 import 'screens/firestore_test_screen.dart';
 import 'screens/auth/auth_wrapper.dart';
-import 'providers/data_provider.dart';
 import 'providers/auth_provider.dart';
+import 'providers/data_provider.dart';
+import 'providers/app_state_provider.dart' show AppStateProvider;
+import 'providers/news_events_provider.dart' as news;
+import 'providers/business_directory_provider.dart' as business;
+import 'providers/bulletin_board_provider.dart' as bulletin;
 
-class MainApp extends StatefulWidget {
+class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
   @override
-  State<MainApp> createState() => _MainAppState();
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AppStateProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => DataProvider()),
+        ChangeNotifierProvider(create: (_) => news.NewsEventsProvider()),
+        ChangeNotifierProvider(
+          create: (_) => business.BusinessDirectoryProvider(),
+        ),
+        ChangeNotifierProvider(create: (_) => bulletin.BulletinBoardProvider()),
+      ],
+      child: MaterialApp(
+        title: 'Community Beat',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        home: const AppContent(),
+      ),
+    );
+  }
 }
 
-class _MainAppState extends State<MainApp> {
+class AppContent extends StatefulWidget {
+  const AppContent({super.key});
+
+  @override
+  State<AppContent> createState() => _AppContentState();
+}
+
+class _AppContentState extends State<AppContent> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = [
@@ -32,44 +64,29 @@ class _MainAppState extends State<MainApp> {
   @override
   void initState() {
     super.initState();
-    // Initialize notifications and auth
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      NotificationHandler.initialize(context);
-      context.read<AuthProvider>().initialize();
-    });
+    debugPrint('[AppContent] initState called');
+    // Auth is already initialized in AppInitializer
+    NotificationHandler.initialize(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AppStateProvider()),
-        ChangeNotifierProvider(create: (_) => NewsEventsProvider()),
-        ChangeNotifierProvider(create: (_) => BusinessDirectoryProvider()),
-        ChangeNotifierProvider(create: (_) => BulletinBoardProvider()),
-        ChangeNotifierProvider(create: (_) => DataProvider()),
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-      ],
-      child: Consumer<AppStateProvider>(
-        builder: (context, appState, child) {
-          return ScaffoldWrapper(
-            body: IndexedStack(
-              index: _currentIndex,
-              children: _screens,
-            ),
-            bottomNavigationBar: CustomBottomNavigation(
-              currentIndex: _currentIndex,
-              onTap: (index) {
-                setState(() {
-                  _currentIndex = index;
-                });
-                appState.setBottomNavIndex(index);
-              },
-            ),
-            drawer: const CustomDrawer(),
-          );
-        },
-      ),
+    return Consumer<AppStateProvider>(
+      builder: (context, appState, child) {
+        return ScaffoldWrapper(
+          body: IndexedStack(index: _currentIndex, children: _screens),
+          bottomNavigationBar: CustomBottomNavigation(
+            currentIndex: _currentIndex,
+            onTap: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+              appState.setBottomNavIndex(index);
+            },
+          ),
+          drawer: const CustomDrawer(),
+        );
+      },
     );
   }
 }
@@ -80,59 +97,70 @@ class CommunityBeatApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Community Beat',
-      debugShowCheckedModeBanner: false,
-      routes: {
-        '/firestore-test': (context) => const FirestoreTestScreen(),
-      },
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        primaryColor: Colors.blue[700],
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue[700]!,
-          brightness: Brightness.light,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => AppStateProvider()),
+        ChangeNotifierProvider(create: (_) => news.NewsEventsProvider()),
+        ChangeNotifierProvider(
+          create: (_) => business.BusinessDirectoryProvider(),
         ),
-        appBarTheme: AppBarTheme(
-          backgroundColor: Colors.blue[700],
-          foregroundColor: Colors.white,
-          elevation: 0,
-          centerTitle: true,
-        ),
-        cardTheme: CardThemeData(
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+        ChangeNotifierProvider(create: (_) => bulletin.BulletinBoardProvider()),
+        ChangeNotifierProvider(create: (_) => DataProvider()),
+      ],
+      child: MaterialApp(
+        title: 'Community Beat',
+        debugShowCheckedModeBanner: false,
+        routes: {'/firestore-test': (context) => const FirestoreTestScreen()},
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          primaryColor: Colors.blue[700],
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.blue[700]!,
+            brightness: Brightness.light,
           ),
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
+          appBarTheme: AppBarTheme(
             backgroundColor: Colors.blue[700],
             foregroundColor: Colors.white,
+            elevation: 0,
+            centerTitle: true,
+          ),
+          cardTheme: CardThemeData(
+            elevation: 2,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-        ),
-        floatingActionButtonTheme: FloatingActionButtonThemeData(
-          backgroundColor: Colors.blue[700],
-          foregroundColor: Colors.white,
-        ),
-        chipTheme: ChipThemeData(
-          backgroundColor: Colors.grey[200],
-          selectedColor: Colors.blue[100],
-          labelStyle: const TextStyle(fontSize: 12),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue[700],
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          floatingActionButtonTheme: FloatingActionButtonThemeData(
+            backgroundColor: Colors.blue[700],
+            foregroundColor: Colors.white,
+          ),
+          chipTheme: ChipThemeData(
+            backgroundColor: Colors.grey[200],
+            selectedColor: Colors.blue[100],
+            labelStyle: const TextStyle(fontSize: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          ),
+          inputDecorationTheme: InputDecorationTheme(
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
+          ),
+          useMaterial3: true,
         ),
-        useMaterial3: true,
+        home: const AuthWrapper(),
       ),
-      home: const AuthWrapper(),
     );
   }
 }

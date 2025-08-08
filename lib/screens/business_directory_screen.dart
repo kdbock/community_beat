@@ -4,13 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../widgets/index.dart';
 import '../models/business.dart';
+import '../models/business_item.dart' as models;
 import '../utils/constants.dart';
+import '../providers/business_directory_provider.dart';
 
 class BusinessDirectoryScreen extends StatefulWidget {
   const BusinessDirectoryScreen({super.key});
 
   @override
-  State<BusinessDirectoryScreen> createState() => _BusinessDirectoryScreenState();
+  State<BusinessDirectoryScreen> createState() =>
+      _BusinessDirectoryScreenState();
 }
 
 class _BusinessDirectoryScreenState extends State<BusinessDirectoryScreen> {
@@ -52,18 +55,20 @@ class _BusinessDirectoryScreenState extends State<BusinessDirectoryScreen> {
             children: [
               BusinessSearch(
                 onSearchChanged: (query) => provider.setSearchQuery(query),
-                onCategoryChanged: (category) => provider.setSelectedCategory(category),
+                onCategoryChanged:
+                    (category) => provider.setSelectedCategory(category),
                 categories: _getCategories(),
                 selectedCategory: provider.selectedCategory,
               ),
-              Expanded(
-                child: _buildBusinessList(provider),
-              ),
+              Expanded(child: _buildBusinessList(provider)),
             ],
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
-              CustomSnackBar.showInfo(context, 'Add business feature coming soon!');
+              CustomSnackBar.showInfo(
+                context,
+                'Add business feature coming soon!',
+              );
             },
             tooltip: 'Add business',
             child: const Icon(Icons.add_business),
@@ -74,23 +79,31 @@ class _BusinessDirectoryScreenState extends State<BusinessDirectoryScreen> {
   }
 
   Widget _buildBusinessList(BusinessDirectoryProvider provider) {
-    final businesses = _getMockBusinesses().map((business) => BusinessItem(
-      id: business.id,
-      name: business.name,
-      description: business.description,
-      imageUrl: business.imageUrl,
-      phone: business.phone,
-      email: business.email,
-      category: business.category,
-      rating: business.rating,
-      hasDeals: business.deals.isNotEmpty,
-      isNew: business.isNew,
-      onTap: () {
-        CustomSnackBar.showInfo(context, 'Opening ${business.name}...');
-      },
-    )).toList();
+    final businesses =
+        _getMockBusinesses()
+            .map(
+              (business) => models.BusinessItem(
+                id: business.id,
+                name: business.name,
+                description: business.description,
+                imageUrl: business.imageUrl,
+                phone: business.phone,
+                email: business.email,
+                category: business.category,
+                rating: business.rating,
+                hasDeals: business.deals.isNotEmpty,
+                isNew: business.isNew,
+                onTap: () {
+                  CustomSnackBar.showInfo(
+                    context,
+                    'Opening ${business.name}...',
+                  );
+                },
+              ),
+            )
+            .toList();
 
-    return BusinessList(
+    return BusinessList<models.BusinessItem>(
       businesses: businesses,
       isLoading: provider.isLoading,
       onRefresh: () => provider.loadBusinesses(),
@@ -98,17 +111,18 @@ class _BusinessDirectoryScreenState extends State<BusinessDirectoryScreen> {
   }
 
   List<String> _getCategories() {
-    return AppConstants.businessCategories.where((cat) => cat != 'All').toList();
+    return AppConstants.businessCategories
+        .where((cat) => cat != 'All')
+        .toList();
   }
-
-
 
   List<Business> _getMockBusinesses() {
     return [
       Business(
         id: '1',
         name: 'Joe\'s Pizza',
-        description: 'Authentic Italian pizza made with fresh ingredients. Family owned since 1985.',
+        description:
+            'Authentic Italian pizza made with fresh ingredients. Family owned since 1985.',
         category: 'Restaurants',
         address: '123 Main Street, Downtown',
         phone: '(555) 123-4567',
@@ -139,7 +153,8 @@ class _BusinessDirectoryScreenState extends State<BusinessDirectoryScreen> {
       Business(
         id: '2',
         name: 'Smith Auto Repair',
-        description: 'Professional auto repair services with certified mechanics. All makes and models.',
+        description:
+            'Professional auto repair services with certified mechanics. All makes and models.',
         category: 'Automotive',
         address: '456 Oak Avenue, Industrial District',
         phone: '(555) 987-6543',
@@ -156,12 +171,18 @@ class _BusinessDirectoryScreenState extends State<BusinessDirectoryScreen> {
         rating: 4.8,
         reviewCount: 89,
         isVerified: true,
-        services: ['Oil Change', 'Brake Repair', 'Engine Diagnostics', 'Tire Service'],
+        services: [
+          'Oil Change',
+          'Brake Repair',
+          'Engine Diagnostics',
+          'Tire Service',
+        ],
       ),
       Business(
         id: '3',
         name: 'Green Thumb Garden Center',
-        description: 'Your local source for plants, gardening supplies, and landscaping advice.',
+        description:
+            'Your local source for plants, gardening supplies, and landscaping advice.',
         category: 'Shopping',
         address: '789 Garden Lane, Suburbs',
         phone: '(555) 456-7890',

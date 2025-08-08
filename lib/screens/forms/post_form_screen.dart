@@ -10,7 +10,7 @@ import '../../widgets/index.dart';
 
 class PostFormScreen extends StatefulWidget {
   final Post? existingPost; // For editing
-  
+
   const PostFormScreen({super.key, this.existingPost});
 
   @override
@@ -25,10 +25,10 @@ class _PostFormScreenState extends State<PostFormScreen> {
   final _phoneController = TextEditingController();
   final _emailController = TextEditingController();
   final _tagsController = TextEditingController();
-  
+
   // Content editor
   final _contentController = TextEditingController();
-  
+
   // Form state
   PostType _selectedType = PostType.general;
   String _selectedCategory = 'General';
@@ -36,15 +36,28 @@ class _PostFormScreenState extends State<PostFormScreen> {
   List<String> _tags = [];
   bool _isLoading = false;
   bool _isDraftSaved = false;
-  
+
   // Services
   final FormService _formService = FormService();
-  
+
   // Categories by post type
   final Map<PostType, List<String>> _categoriesByType = {
     PostType.general: ['General', 'Announcements', 'Questions', 'Discussion'],
-    PostType.buySell: ['Electronics', 'Furniture', 'Clothing', 'Books', 'Vehicles', 'Other'],
-    PostType.job: ['Full-time', 'Part-time', 'Contract', 'Internship', 'Volunteer'],
+    PostType.buySell: [
+      'Electronics',
+      'Furniture',
+      'Clothing',
+      'Books',
+      'Vehicles',
+      'Other',
+    ],
+    PostType.job: [
+      'Full-time',
+      'Part-time',
+      'Contract',
+      'Internship',
+      'Volunteer',
+    ],
     PostType.housing: ['For Rent', 'For Sale', 'Roommate', 'Sublet'],
     PostType.lostFound: ['Lost', 'Found'],
     PostType.service: ['Offered', 'Needed'],
@@ -85,19 +98,20 @@ class _PostFormScreenState extends State<PostFormScreen> {
           // Submit button
           TextButton(
             onPressed: _isLoading ? null : _submitPost,
-            child: _isLoading
-                ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Text(
-                    'POST',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+            child:
+                _isLoading
+                    ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                    : const Text(
+                      'POST',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
           ),
         ],
       ),
@@ -110,54 +124,54 @@ class _PostFormScreenState extends State<PostFormScreen> {
             children: [
               // Post type selection
               _buildPostTypeSelector(),
-              
+
               const SizedBox(height: 16),
-              
+
               // Category selection
               _buildCategorySelector(),
-              
+
               const SizedBox(height: 16),
-              
+
               // Title field
               _buildTitleField(),
-              
+
               const SizedBox(height: 16),
-              
+
               // Rich text content editor
               _buildContentEditor(),
-              
+
               const SizedBox(height: 16),
-              
+
               // Image picker
               _buildImagePicker(),
-              
+
               const SizedBox(height: 16),
-              
+
               // Location picker
               _buildLocationPicker(),
-              
+
               const SizedBox(height: 16),
-              
+
               // Price field (for buy/sell posts)
               if (_selectedType == PostType.buySell) ...[
                 _buildPriceField(),
                 const SizedBox(height: 16),
               ],
-              
+
               // Contact info (for relevant post types)
               if (_needsContactInfo()) ...[
                 _buildContactInfo(),
                 const SizedBox(height: 16),
               ],
-              
+
               // Tags
               _buildTagsField(),
-              
+
               const SizedBox(height: 32),
-              
+
               // Submit button
               _buildSubmitButton(),
-              
+
               const SizedBox(height: 16),
             ],
           ),
@@ -178,21 +192,24 @@ class _PostFormScreenState extends State<PostFormScreen> {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: PostType.values.map((type) {
-            final isSelected = _selectedType == type;
-            return FilterChip(
-              label: Text(type.displayName),
-              selected: isSelected,
-              onSelected: (selected) {
-                setState(() {
-                  _selectedType = type;
-                  _selectedCategory = _categoriesByType[type]!.first;
-                });
-              },
-              selectedColor: Theme.of(context).primaryColor.withOpacity(0.2),
-              checkmarkColor: Theme.of(context).primaryColor,
-            );
-          }).toList(),
+          children:
+              PostType.values.map((type) {
+                final isSelected = _selectedType == type;
+                return FilterChip(
+                  label: Text(type.displayName),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    setState(() {
+                      _selectedType = type;
+                      _selectedCategory = _categoriesByType[type]!.first;
+                    });
+                  },
+                  selectedColor: Theme.of(
+                    context,
+                  ).primaryColor.withOpacity(0.2),
+                  checkmarkColor: Theme.of(context).primaryColor,
+                );
+              }).toList(),
         ),
       ],
     );
@@ -200,7 +217,7 @@ class _PostFormScreenState extends State<PostFormScreen> {
 
   Widget _buildCategorySelector() {
     final categories = _categoriesByType[_selectedType] ?? ['General'];
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -215,12 +232,10 @@ class _PostFormScreenState extends State<PostFormScreen> {
             border: OutlineInputBorder(),
             contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           ),
-          items: categories.map((category) {
-            return DropdownMenuItem(
-              value: category,
-              child: Text(category),
-            );
-          }).toList(),
+          items:
+              categories.map((category) {
+                return DropdownMenuItem(value: category, child: Text(category));
+              }).toList(),
           onChanged: (value) {
             setState(() {
               _selectedCategory = value!;
@@ -504,7 +519,12 @@ class _PostFormScreenState extends State<PostFormScreen> {
             helperText: 'e.g., urgent, negotiable, pickup only',
           ),
           onChanged: (value) {
-            _tags = value.split(',').map((tag) => tag.trim()).where((tag) => tag.isNotEmpty).toList();
+            _tags =
+                value
+                    .split(',')
+                    .map((tag) => tag.trim())
+                    .where((tag) => tag.isNotEmpty)
+                    .toList();
             _markDraftUnsaved();
           },
         ),
@@ -513,18 +533,19 @@ class _PostFormScreenState extends State<PostFormScreen> {
           Wrap(
             spacing: 8,
             runSpacing: 4,
-            children: _tags.map((tag) {
-              return Chip(
-                label: Text(tag),
-                onDeleted: () {
-                  setState(() {
-                    _tags.remove(tag);
-                    _tagsController.text = _tags.join(', ');
-                  });
-                  _markDraftUnsaved();
-                },
-              );
-            }).toList(),
+            children:
+                _tags.map((tag) {
+                  return Chip(
+                    label: Text(tag),
+                    onDeleted: () {
+                      setState(() {
+                        _tags.remove(tag);
+                        _tagsController.text = _tags.join(', ');
+                      });
+                      _markDraftUnsaved();
+                    },
+                  );
+                }).toList(),
           ),
         ],
       ],
@@ -537,15 +558,16 @@ class _PostFormScreenState extends State<PostFormScreen> {
       height: 50,
       child: ElevatedButton(
         onPressed: _isLoading ? null : _submitPost,
-        child: _isLoading
-            ? const CircularProgressIndicator()
-            : Text(
-                widget.existingPost != null ? 'UPDATE POST' : 'PUBLISH POST',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+        child:
+            _isLoading
+                ? const CircularProgressIndicator()
+                : Text(
+                  widget.existingPost != null ? 'UPDATE POST' : 'PUBLISH POST',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
       ),
     );
   }
@@ -553,8 +575,12 @@ class _PostFormScreenState extends State<PostFormScreen> {
   // Helper methods
 
   bool _needsContactInfo() {
-    return [PostType.buySell, PostType.job, PostType.housing, PostType.service]
-        .contains(_selectedType);
+    return [
+      PostType.buySell,
+      PostType.job,
+      PostType.housing,
+      PostType.service,
+    ].contains(_selectedType);
   }
 
   void _markDraftUnsaved() {
@@ -588,7 +614,7 @@ class _PostFormScreenState extends State<PostFormScreen> {
     _phoneController.text = post.authorContact ?? '';
     _tags = List.from(post.tags);
     _tagsController.text = _tags.join(', ');
-    
+
     // Load content
     _contentController.text = post.description;
   }
@@ -604,10 +630,10 @@ class _PostFormScreenState extends State<PostFormScreen> {
     _emailController.text = draft.contactInfo?['email'] ?? '';
     _tags = List.from(draft.tags);
     _tagsController.text = _tags.join(', ');
-    
+
     // Load content
     _contentController.text = draft.content;
-    
+
     setState(() {
       _isDraftSaved = true;
     });
@@ -615,35 +641,39 @@ class _PostFormScreenState extends State<PostFormScreen> {
 
   Future<void> _saveDraft() async {
     final content = _contentController.text;
-    
+
     final draft = PostDraft(
       title: _titleController.text,
       content: content,
       type: _selectedType,
       category: _selectedCategory,
       imageFiles: _selectedImages,
-      location: _locationController.text.isEmpty ? null : _locationController.text,
-      price: _priceController.text.isEmpty ? null : double.tryParse(_priceController.text),
+      location:
+          _locationController.text.isEmpty ? null : _locationController.text,
+      price:
+          _priceController.text.isEmpty
+              ? null
+              : double.tryParse(_priceController.text),
       contactInfo: _getContactInfo(),
       tags: _tags,
       savedAt: DateTime.now(),
     );
 
     await _formService.savePostDraft(draft);
-    
+
     if (!mounted) return;
-    
+
     setState(() {
       _isDraftSaved = true;
     });
-    
+
     CustomSnackBar.showSuccess(context, 'Draft saved');
   }
 
   Future<void> _pickImages() async {
     try {
       final images = await _formService.pickMultipleImages(maxImages: 5);
-      
+
       // Validate images
       for (final image in images) {
         if (!_formService.isValidImage(image)) {
@@ -655,14 +685,14 @@ class _PostFormScreenState extends State<PostFormScreen> {
           return;
         }
       }
-      
+
       setState(() {
         _selectedImages.addAll(images);
         if (_selectedImages.length > 5) {
           _selectedImages = _selectedImages.take(5).toList();
         }
       });
-      
+
       _markDraftUnsaved();
     } catch (e) {
       CustomSnackBar.showError(context, 'Failed to pick images: $e');
@@ -685,9 +715,9 @@ class _PostFormScreenState extends State<PostFormScreen> {
   Map<String, String>? _getContactInfo() {
     final phone = _phoneController.text.trim();
     final email = _emailController.text.trim();
-    
+
     if (phone.isEmpty && email.isEmpty) return null;
-    
+
     return {
       if (phone.isNotEmpty) 'phone': phone,
       if (email.isNotEmpty) 'email': email,
@@ -696,7 +726,7 @@ class _PostFormScreenState extends State<PostFormScreen> {
 
   Future<void> _submitPost() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     final authProvider = context.read<AuthProvider>();
     if (!authProvider.isSignedIn) {
       CustomSnackBar.showError(context, 'Please sign in to create a post');
@@ -709,7 +739,7 @@ class _PostFormScreenState extends State<PostFormScreen> {
 
     try {
       final content = _contentController.text;
-      
+
       if (content.trim().isEmpty) {
         CustomSnackBar.showError(context, 'Please enter some content');
         return;
@@ -721,26 +751,33 @@ class _PostFormScreenState extends State<PostFormScreen> {
         type: _selectedType,
         category: _selectedCategory,
         imageFiles: _selectedImages,
-        location: _locationController.text.isEmpty ? null : _locationController.text.trim(),
-        price: _priceController.text.isEmpty ? null : double.tryParse(_priceController.text),
+        location:
+            _locationController.text.isEmpty
+                ? null
+                : _locationController.text.trim(),
+        price:
+            _priceController.text.isEmpty
+                ? null
+                : double.tryParse(_priceController.text),
         contactInfo: _getContactInfo(),
         tags: _tags,
         savedAt: DateTime.now(),
       );
 
       final post = await _formService.submitPost(draft);
-      
+
       if (!mounted) return;
-      
+
       CustomSnackBar.showSuccess(context, 'Post published successfully!');
       Navigator.pop(context, post);
-      
     } catch (e) {
       CustomSnackBar.showError(context, 'Failed to publish post: $e');
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 }

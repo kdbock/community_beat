@@ -1,25 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'firebase_options.dart';
+import 'initialization.dart';
 import 'main_app.dart';
 
-// Background message handler
-@pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  debugPrint('Handling a background message: ${message.messageId}');
-}
-
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  
-  // Set the background messaging handler
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  
-  runApp(const CommunityBeatApp());
+  // Set up error handlers first
+  FlutterError.onError = (FlutterErrorDetails details) {
+    debugPrint('FlutterError: ${details.exceptionAsString()}');
+    debugPrint('Stack trace: ${details.stack}');
+    FlutterError.dumpErrorToConsole(details);
+  };
+
+  // Initialize the app
+  final initialized = await AppInitializer.initialize();
+
+  if (!initialized) {
+    runApp(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: Text(
+              'Failed to initialize app. Please check your connection and try again.',
+            ),
+          ),
+        ),
+      ),
+    );
+    return;
+  }
+
+  runApp(const MainApp());
 }

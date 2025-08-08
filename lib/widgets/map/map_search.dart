@@ -29,9 +29,10 @@ class _MapSearchBarState extends State<MapSearchBar> {
     super.initState();
     _focusNode.addListener(() {
       setState(() {
-        _showSuggestions = _focusNode.hasFocus && 
-                          widget.suggestions != null && 
-                          widget.suggestions!.isNotEmpty;
+        _showSuggestions =
+            _focusNode.hasFocus &&
+            widget.suggestions != null &&
+            widget.suggestions!.isNotEmpty;
       });
     });
   }
@@ -54,7 +55,7 @@ class _MapSearchBarState extends State<MapSearchBar> {
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withAlpha((0.1 * 255).toInt()),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -94,14 +95,18 @@ class _MapSearchBarState extends State<MapSearchBar> {
               ),
               filled: true,
               fillColor: Colors.white,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
             ),
             onChanged: (value) {
               widget.onSearch(value);
               setState(() {
-                _showSuggestions = value.isNotEmpty && 
-                                 widget.suggestions != null && 
-                                 widget.suggestions!.isNotEmpty;
+                _showSuggestions =
+                    value.isNotEmpty &&
+                    widget.suggestions != null &&
+                    widget.suggestions!.isNotEmpty;
               });
             },
             onSubmitted: (value) {
@@ -120,7 +125,7 @@ class _MapSearchBarState extends State<MapSearchBar> {
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withAlpha((0.1 * 255).toInt()),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -138,9 +143,10 @@ class _MapSearchBarState extends State<MapSearchBar> {
                     color: Theme.of(context).primaryColor,
                   ),
                   title: Text(suggestion.title),
-                  subtitle: suggestion.subtitle != null 
-                      ? Text(suggestion.subtitle!) 
-                      : null,
+                  subtitle:
+                      suggestion.subtitle != null
+                          ? Text(suggestion.subtitle!)
+                          : null,
                   onTap: () {
                     _controller.text = suggestion.title;
                     _focusNode.unfocus();
@@ -189,9 +195,4 @@ class SearchSuggestion {
   });
 }
 
-enum SearchSuggestionType {
-  business,
-  event,
-  service,
-  location,
-}
+enum SearchSuggestionType { business, event, service, location }
